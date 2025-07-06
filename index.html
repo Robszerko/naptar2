@@ -7,7 +7,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
     <style>
+        /* --- CSS Rész --- */
         *, *::before, *::after {
             box-sizing: border-box;
         }
@@ -166,6 +168,7 @@
     </div>
 
     <script>
+    // --- Adatok (Névnapok) ---
     const nameDays = {
         "01-01": ["Fruzsina"], "01-02": ["Ábel"], "01-03": ["Benjámin", "Genovéva"], "01-04": ["Leóna", "Titusz"], "01-05": ["Simon"],
         "01-06": ["Boldizsár"], "01-07": ["Attila", "Ramóna"], "01-08": ["Gyöngyvér"], "01-09": ["Marcell"], "01-10": ["Melánia"],
@@ -241,69 +244,97 @@
         "12-27": ["János"], "12-28": ["Kamilla"], "12-29": ["Tamara", "Tamás"], "12-30": ["Dávid"], "12-31": ["Szilveszter"]
     };
 
-    const honapok = ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"];
-    const napok = ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"];
+    // --- Refaktorált Logika ---
+    // A DOMContentLoaded biztosítja, hogy a szkript csak a teljes oldal betöltődése után fusson le.
+    document.addEventListener('DOMContentLoaded', () => {
 
-    function updateCalendar() {
-        const now = new Date();
-        const tomorrow = new Date(now);
-        tomorrow.setDate(now.getDate() + 1);
+        // --- Konstansok és segédváltozók ---
+        const DOM = {
+            currentDate: document.getElementById('current-date'),
+            statsLine1: document.getElementById('date-stats-line1'),
+            statsLine2: document.getElementById('date-stats-line2'),
+            todayNames: document.getElementById('today-names'),
+            tomorrowNames: document.getElementById('tomorrow-names'),
+            year: document.getElementById('year'),
+        };
 
-        const year = now.getFullYear();
-        const monthName = honapok[now.getMonth()];
-        const dayOfMonth = now.getDate();
-        const dayName = napok[now.getDay()];
-        
-        document.getElementById('current-date').textContent = `${year}. ${monthName} ${dayOfMonth}., ${dayName}`;
-        document.getElementById('year').textContent = year;
+        const honapok = ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"];
+        const napok = ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"];
 
-        // Statisztikák számítása
-        const monthOfYear = now.getMonth() + 1;
-        const startOfYear = new Date(year, 0, 1);
-        const dayOfYear = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24)) + 1;
-        const weekOfYear = Math.ceil(dayOfYear / 7);
-        
-        // JAVÍTOTT RÉSZ: a következő év elejét vesszük alapul a pontos számításhoz
-        const endOfYear = new Date(year + 1, 0, 1);
-        const daysRemaining = Math.floor((endOfYear - now) / (1000 * 60 * 60 * 24));
+        // --- Függvények ---
 
-        // Statisztikák kiírása a megújult formátumban
-        const statsLine1 = `Az év <span>${monthOfYear}</span>. hónapja, <span>${weekOfYear}</span>. hete és <span>${dayOfYear}</span>. napja.`;
-        const statsLine2 = `Ebből az évből <span>${daysRemaining}</span> nap van hátra.`;
-        
-        document.getElementById('date-stats-line1').innerHTML = statsLine1;
-        document.getElementById('date-stats-line2').innerHTML = statsLine2;
-
-        // Névnapok kikeresése és kiírása
-        const formatKey = (date) => {
+        /** Formátumot készít a dátumból a névnap objektum kulcsaihoz (pl. "03-14") */
+        const formatDateKey = (date) => {
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
             const day = date.getDate().toString().padStart(2, '0');
             return `${month}-${day}`;
         };
+
+        /** Frissíti a fejlécet és a láblécet az aktuális dátummal */
+        const updateHeaderAndFooter = (now) => {
+            const year = now.getFullYear();
+            const monthName = honapok[now.getMonth()];
+            const dayOfMonth = now.getDate();
+            const dayName = napok[now.getDay()];
+            
+            DOM.currentDate.textContent = `${year}. ${monthName} ${dayOfMonth}., ${dayName}`;
+            DOM.year.textContent = year;
+        };
         
-        const todayKey = formatKey(now);
-        const tomorrowKey = formatKey(tomorrow);
+        /** Kiszámolja és kiírja az évre vonatkozó statisztikákat */
+        const updateDateStats = (now) => {
+            const year = now.getFullYear();
+            const startOfYear = new Date(year, 0, 1);
+            const endOfYear = new Date(year + 1, 0, 1);
+            
+            const dayOfYear = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24)) + 1;
+            const weekOfYear = Math.ceil(dayOfYear / 7);
+            const daysRemaining = Math.floor((endOfYear - now) / (1000 * 60 * 60 * 24));
+            
+            DOM.statsLine1.innerHTML = `Az év <span>${now.getMonth() + 1}</span>. hónapja, <span>${weekOfYear}</span>. hete és <span>${dayOfYear}</span>. napja.`;
+            DOM.statsLine2.innerHTML = `Ebből az évből <span>${daysRemaining}</span> nap van hátra.`;
+        };
 
-        const todayNames = nameDays[todayKey] || ["Nincs adat"];
-        const tomorrowNames = nameDays[tomorrowKey] || ["Nincs adat"];
-        
-        document.getElementById('today-names').textContent = todayNames.join(', ');
-        document.getElementById('tomorrow-names').textContent = tomorrowNames.join(', ');
-    }
+        /** Megkeresi és kiírja a mai és holnapi névnapokat */
+        const updateNameDays = (now) => {
+            const tomorrow = new Date(now);
+            tomorrow.setDate(now.getDate() + 1);
 
-    function scheduleNextUpdate() {
-        const now = new Date();
-        const tomorrowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 1);
-        const msUntilMidnight = tomorrowMidnight - now;
+            const todayKey = formatDateKey(now);
+            const tomorrowKey = formatDateKey(tomorrow);
 
-        setTimeout(() => {
-            updateCalendar();
-            setInterval(updateCalendar, 24 * 60 * 60 * 1000);
-        }, msUntilMidnight);
-    }
+            const today = nameDays[todayKey] || ["Nincs adat"];
+            const tomorrowd = nameDays[tomorrowKey] || ["Nincs adat"];
+            
+            DOM.todayNames.textContent = today.join(', ');
+            DOM.tomorrowNames.textContent = tomorrowd.join(', ');
+        };
 
-    updateCalendar();
-    scheduleNextUpdate();
+        /** A fő frissítő függvény, ami meghívja a kisebb, specifikus függvényeket */
+        const refreshAllData = () => {
+            const now = new Date();
+            updateHeaderAndFooter(now);
+            updateDateStats(now);
+            updateNameDays(now);
+        };
+
+        /** Időzítőt állít be a következő frissítésre (pontosan éjfélkor) */
+        const scheduleNextUpdate = () => {
+            const now = new Date();
+            const tomorrowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 1);
+            const msUntilMidnight = tomorrowMidnight - now;
+
+            // Éjfélkor lefut, majd onnantól 24 óránként ismétel
+            setTimeout(() => {
+                refreshAllData();
+                setInterval(refreshAllData, 24 * 60 * 60 * 1000);
+            }, msUntilMidnight);
+        };
+
+        // --- Indítás ---
+        refreshAllData();
+        scheduleNextUpdate();
+    });
     </script>
 </body>
 </html>
