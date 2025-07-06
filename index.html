@@ -3,13 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pontos Névnap Naptár</title>
+    <title>Interaktív Névnap Naptár</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         /* --- CSS Rész --- */
+        :root {
+            --primary-accent: #ff4081; /* Kiemelő szín */
+            --bg-gradient-start: #1d2b64;
+            --bg-gradient-end: #4f2c5f;
+            --container-bg: rgba(0, 0, 0, 0.2);
+            --container-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --text-strong: #ffffff;
+            --cell-bg: rgba(255, 255, 255, 0.05);
+            --cell-hover-bg: rgba(255, 255, 255, 0.1);
+        }
+
         *, *::before, *::after {
             box-sizing: border-box;
         }
@@ -19,116 +32,146 @@
             margin: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
-            color: #e0e0e0;
-            background: linear-gradient(145deg, #1d2b64, #4f2c5f);
+            color: var(--text-primary);
+            background: linear-gradient(145deg, var(--bg-gradient-start), var(--bg-gradient-end));
             padding: 20px;
         }
 
         .main-container {
             width: 100%;
-            max-width: 420px;
+            max-width: 900px;
             padding: 30px;
             border-radius: 24px;
-            background: rgba(0, 0, 0, 0.2);
+            background: var(--container-bg);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--container-border);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            text-align: center;
         }
 
-        .date-header {
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 25px;
         }
-
-        #current-date {
-            font-size: 1.6rem;
+        
+        #month-year-display {
+            font-size: 1.8rem;
             font-weight: 600;
-            margin: 0;
-            color: #ffffff;
+            color: var(--text-strong);
             letter-spacing: 0.5px;
         }
 
-        .stats-container {
-            margin-bottom: 30px;
-            padding-bottom: 25px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        .nav-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease, transform 0.2s ease;
         }
         
-        .stats-container p {
-            font-size: 0.9rem;
-            font-weight: 300;
-            color: #d0d0d0;
-            opacity: 0.9;
-            margin: 5px 0;
-            line-height: 1.5;
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
-        
-        .stats-container p span {
-            font-weight: 700;
-            color: #ffffff;
-        }
-        
-        .nameday-grid {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
+        .nav-button:active {
+            transform: translateY(0);
         }
 
-        .nameday-card {
-            background: rgba(0, 0, 0, 0.25);
-            border-radius: 16px;
-            padding: 20px;
-            flex: 1;
-            transition: transform 0.3s ease, background 0.3s ease;
+        .calendar-header, .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
         }
 
-        .nameday-card:hover {
-            transform: translateY(-5px);
-            background: rgba(0, 0, 0, 0.4);
-        }
-
-        .nameday-card h2 {
-            font-size: 1.1rem;
-            font-weight: 400;
-            margin: 0 0 12px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: #d0d0d0;
-        }
-        
-        .nameday-card h2 svg {
-            width: 20px;
-            height: 20px;
-            fill: #ff4081;
-        }
-
-        #today-names, #tomorrow-names {
-            font-size: 1.3rem;
+        .calendar-header div {
+            text-align: center;
             font-weight: 600;
-            color: #ffffff;
-            margin: 0;
-            min-height: 48px;
-            line-height: 1.4;
+            padding-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .day-cell {
+            background: var(--cell-bg);
+            border-radius: 8px;
+            min-height: 120px;
+            padding: 10px; /* VÁLTOZÁS: Több belső tér */
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
+            justify-content: flex-start;
+            border: 1px solid transparent;
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
         
+        .day-cell:hover {
+            background: var(--cell-hover-bg);
+        }
+        
+        .day-cell.other-month {
+            opacity: 0.3;
+            background: transparent;
+        }
+
+        .day-cell.current-day {
+            background-color: var(--primary-accent);
+            border: 1px solid var(--primary-accent);
+            color: var(--text-strong);
+        }
+        
+        .day-cell.current-day .day-number {
+             font-weight: 700;
+             color: var(--text-strong);
+        }
+        
+        .day-cell.current-day .day-names {
+            color: var(--text-strong);
+            font-weight: 500; /* VÁLTOZÁS: Kiemelt napon vastagabb névnapok */
+        }
+
+        .day-number {
+            font-weight: 600;
+            font-size: 1.3rem; /* VÁLTOZÁS: Nagyobb számok */
+            align-self: flex-end;
+            color: var(--text-strong); /* VÁLTOZÁS: Világosabb számok */
+        }
+        
+        .day-names {
+            margin-top: 8px; /* VÁLTOZÁS: Kicsit nagyobb távolság */
+            font-size: 0.85rem; /* VÁLTOZÁS: Nagyobb betűméret */
+            font-weight: 400; /* VÁLTOZÁS: Normál (nem vékony) betűvastagság */
+            line-height: 1.4;
+            color: var(--text-primary); /* VÁLTOZÁS: Világosabb, jobban olvasható szín */
+            flex-grow: 1;
+        }
+
         .footer {
             margin-top: 30px;
             font-size: 0.8rem;
             opacity: 0.6;
             letter-spacing: 0.5px;
+            text-align: center;
         }
         
-        @media (max-width: 480px) {
-            .nameday-grid {
-                flex-direction: column;
+        @media (max-width: 768px) {
+            .day-cell {
+                min-height: 90px;
+                padding: 5px;
+            }
+            .day-names {
+                font-size: 0.7rem;
+            }
+            #month-year-display {
+                font-size: 1.4rem;
+            }
+            .day-number {
+                font-size: 1rem;
             }
         }
     </style>
@@ -136,29 +179,24 @@
 <body>
 
     <div class="main-container">
-        <header class="date-header">
-            <h1 id="current-date">Betöltés...</h1>
+        <header class="calendar-nav">
+            <button id="prev-month" class="nav-button">< Előző</button>
+            <h1 id="month-year-display">Betöltés...</h1>
+            <button id="next-month" class="nav-button">Következő ></button>
         </header>
 
-        <section class="stats-container">
-            <p id="date-stats-line1">...</p>
-            <p id="date-stats-line2">...</p>
-        </section>
-
-        <main class="nameday-grid">
-            <div class="nameday-card">
-                <h2>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"></path></svg>
-                    Ma
-                </h2>
-                <p id="today-names">...</p>
+        <main>
+            <div class="calendar-header">
+                <div>Hétfő</div>
+                <div>Kedd</div>
+                <div>Szerda</div>
+                <div>Csütörtök</div>
+                <div>Péntek</div>
+                <div>Szombat</div>
+                <div>Vasárnap</div>
             </div>
-            <div class="nameday-card">
-                <h2>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"></path></svg>
-                    Holnap
-                </h2>
-                <p id="tomorrow-names">...</p>
+            <div class="calendar-grid" id="calendar-grid">
+                <!-- A naptár cellái ide generálódnak JS segítségével -->
             </div>
         </main>
         
@@ -244,96 +282,82 @@
         "12-27": ["János"], "12-28": ["Kamilla"], "12-29": ["Tamara", "Tamás"], "12-30": ["Dávid"], "12-31": ["Szilveszter"]
     };
 
-    // --- Refaktorált Logika ---
-    // A DOMContentLoaded biztosítja, hogy a szkript csak a teljes oldal betöltődése után fusson le.
+    // --- Átalakított Logika ---
     document.addEventListener('DOMContentLoaded', () => {
 
-        // --- Konstansok és segédváltozók ---
         const DOM = {
-            currentDate: document.getElementById('current-date'),
-            statsLine1: document.getElementById('date-stats-line1'),
-            statsLine2: document.getElementById('date-stats-line2'),
-            todayNames: document.getElementById('today-names'),
-            tomorrowNames: document.getElementById('tomorrow-names'),
+            monthYearDisplay: document.getElementById('month-year-display'),
+            calendarGrid: document.getElementById('calendar-grid'),
+            prevMonthBtn: document.getElementById('prev-month'),
+            nextMonthBtn: document.getElementById('next-month'),
             year: document.getElementById('year'),
         };
 
         const honapok = ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"];
-        const napok = ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"];
+        
+        let currentDate = new Date();
 
-        // --- Függvények ---
-
-        /** Formátumot készít a dátumból a névnap objektum kulcsaihoz (pl. "03-14") */
         const formatDateKey = (date) => {
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
             const day = date.getDate().toString().padStart(2, '0');
             return `${month}-${day}`;
         };
 
-        /** Frissíti a fejlécet és a láblécet az aktuális dátummal */
-        const updateHeaderAndFooter = (now) => {
-            const year = now.getFullYear();
-            const monthName = honapok[now.getMonth()];
-            const dayOfMonth = now.getDate();
-            const dayName = napok[now.getDay()];
-            
-            DOM.currentDate.textContent = `${year}. ${monthName} ${dayOfMonth}., ${dayName}`;
+        const generateCalendar = () => {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            DOM.monthYearDisplay.textContent = `${year}. ${honapok[month]}`;
             DOM.year.textContent = year;
-        };
-        
-        /** Kiszámolja és kiírja az évre vonatkozó statisztikákat */
-        const updateDateStats = (now) => {
-            const year = now.getFullYear();
-            const startOfYear = new Date(year, 0, 1);
-            const endOfYear = new Date(year + 1, 0, 1);
+            DOM.calendarGrid.innerHTML = '';
+
+            const today = new Date();
+            const firstDayOfMonth = new Date(year, month, 1);
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
             
-            const dayOfYear = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24)) + 1;
-            const weekOfYear = Math.ceil(dayOfYear / 7);
-            const daysRemaining = Math.floor((endOfYear - now) / (1000 * 60 * 60 * 24));
-            
-            DOM.statsLine1.innerHTML = `Az év <span>${now.getMonth() + 1}</span>. hónapja, <span>${weekOfYear}</span>. hete és <span>${dayOfYear}</span>. napja.`;
-            DOM.statsLine2.innerHTML = `Ebből az évből <span>${daysRemaining}</span> nap van hátra.`;
+            const startDayOfWeek = (firstDayOfMonth.getDay() + 6) % 7;
+
+            for (let i = 0; i < startDayOfWeek; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.classList.add('day-cell', 'other-month');
+                DOM.calendarGrid.appendChild(emptyCell);
+            }
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const cellDate = new Date(year, month, i);
+                const dayCell = document.createElement('div');
+                dayCell.classList.add('day-cell');
+                
+                if (year === today.getFullYear() && month === today.getMonth() && i === today.getDate()) {
+                    dayCell.classList.add('current-day');
+                }
+
+                const dayNumber = document.createElement('div');
+                dayNumber.classList.add('day-number');
+                dayNumber.textContent = i;
+                
+                const dayNames = document.createElement('div');
+                dayNames.classList.add('day-names');
+                const names = nameDays[formatDateKey(cellDate)] || [];
+                dayNames.textContent = names.join(', ');
+
+                dayCell.appendChild(dayNumber);
+                dayCell.appendChild(dayNames);
+                DOM.calendarGrid.appendChild(dayCell);
+            }
         };
 
-        /** Megkeresi és kiírja a mai és holnapi névnapokat */
-        const updateNameDays = (now) => {
-            const tomorrow = new Date(now);
-            tomorrow.setDate(now.getDate() + 1);
+        DOM.prevMonthBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            generateCalendar();
+        });
 
-            const todayKey = formatDateKey(now);
-            const tomorrowKey = formatDateKey(tomorrow);
+        DOM.nextMonthBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            generateCalendar();
+        });
 
-            const today = nameDays[todayKey] || ["Nincs adat"];
-            const tomorrowd = nameDays[tomorrowKey] || ["Nincs adat"];
-            
-            DOM.todayNames.textContent = today.join(', ');
-            DOM.tomorrowNames.textContent = tomorrowd.join(', ');
-        };
-
-        /** A fő frissítő függvény, ami meghívja a kisebb, specifikus függvényeket */
-        const refreshAllData = () => {
-            const now = new Date();
-            updateHeaderAndFooter(now);
-            updateDateStats(now);
-            updateNameDays(now);
-        };
-
-        /** Időzítőt állít be a következő frissítésre (pontosan éjfélkor) */
-        const scheduleNextUpdate = () => {
-            const now = new Date();
-            const tomorrowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 1);
-            const msUntilMidnight = tomorrowMidnight - now;
-
-            // Éjfélkor lefut, majd onnantól 24 óránként ismétel
-            setTimeout(() => {
-                refreshAllData();
-                setInterval(refreshAllData, 24 * 60 * 60 * 1000);
-            }, msUntilMidnight);
-        };
-
-        // --- Indítás ---
-        refreshAllData();
-        scheduleNextUpdate();
+        generateCalendar();
     });
     </script>
 </body>
