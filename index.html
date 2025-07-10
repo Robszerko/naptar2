@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- CSS Rész --- */
         :root {
             --bg-gradient-start: #1d2b64;
             --bg-gradient-end: #4f2c5f;
@@ -19,7 +18,7 @@
             --card-bg-hover: rgba(0, 0, 0, 0.4);
             --card-border: rgba(255, 255, 255, 0.1);
             --divider-color: rgba(255, 255, 255, 0.15);
-            --accent-color: #ff4081; /* Rózsaszín az ikonokhoz */
+            --accent-color: #ff4081;
             --shadow-color: rgba(0, 0, 0, 0.37);
         }
 
@@ -35,7 +34,6 @@
             align-items: center;
             min-height: 100vh;
             color: var(--primary-text);
-            /* A folyamatos animáció eltávolítva, csak a statikus háttér maradt */
             background: linear-gradient(145deg, var(--bg-gradient-start), var(--bg-gradient-end));
             padding: 20px;
         }
@@ -51,13 +49,11 @@
             border: 1px solid var(--card-border);
             box-shadow: 0 8px 32px 0 var(--shadow-color);
             text-align: center;
-            /* Kezdeti állapot a beúszó animációhoz */
             opacity: 0;
             transform: translateY(20px);
             transition: opacity 0.8s ease-out, transform 0.8s ease-out;
         }
 
-        /* Betöltött állapot az animációhoz */
         .main-container.loaded {
             opacity: 1;
             transform: translateY(0);
@@ -84,7 +80,6 @@
         .stats-container p {
             font-size: 0.95rem;
             font-weight: 300;
-            color: var(--primary-text);
             margin: 6px 0;
             line-height: 1.6;
         }
@@ -96,16 +91,16 @@
 
         .nameday-grid {
             display: grid;
-            /* A 3 oszlopos elrendezés most már minden képernyőméreten érvényes */
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px; /* Kisebb rés a jobb mobil nézetért */
+            gap: 15px;
         }
 
         .nameday-card {
             background: var(--card-bg);
             border-radius: 16px;
             padding: 20px;
-            flex: 1;
+            display: flex;
+            flex-direction: column;
             transition: transform 0.3s ease, background 0.3s ease;
         }
 
@@ -115,14 +110,13 @@
         }
 
         .nameday-card h2 {
-            font-size: 1.0rem; /* Kisebb betűméret, hogy mobilon is elférjen */
+            font-size: 1.0rem;
             font-weight: 400;
             margin: 0 0 12px 0;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            color: var(--primary-text);
         }
         
         .nameday-card h2 svg {
@@ -132,23 +126,24 @@
         }
 
         #today-names, #tomorrow-names, #yesterday-names {
-            font-size: 1.1rem; /* Kisebb betűméret, hogy több név kiférjen */
+            font-size: 1.1rem;
             font-weight: 600;
             color: var(--strong-text);
             margin: 0;
-            min-height: 40px; /* Layout shift megelőzése */
+            min-height: 40px;
             line-height: 1.4;
             display: flex;
             align-items: center;
             justify-content: center;
-            word-break: break-word; /* Hosszú nevek esetén tördelés */
+            word-break: break-word;
+            flex-grow: 1;
         }
         
-        /* --- Kereső stílusok --- */
         .name-search-container {
             margin-top: 35px;
             padding-top: 25px;
             border-top: 1px solid var(--divider-color);
+            text-align: left;
         }
 
         #name-search {
@@ -175,26 +170,42 @@
         }
         
         #search-results {
-            margin-top: 15px;
-            min-height: 24px;
-            font-size: 0.9rem;
-            color: var(--primary-text);
+            margin-top: 20px;
             line-height: 1.7;
         }
         
-        #search-results span {
+        .result-item {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .result-item p {
+            margin: 0 0 8px 0;
+        }
+        .result-item p:last-child {
+            margin-bottom: 0;
+        }
+        .result-item .date {
+            font-size: 1rem;
             font-weight: 600;
             color: var(--strong-text);
         }
+        .result-item .details {
+            font-size: 0.9rem;
+            color: var(--primary-text);
+            padding-left: 10px;
+            border-left: 2px solid var(--accent-color);
+        }
 
         .footer {
-            margin-top: 30px;
+            /* A margót csökkentettük, hogy közelebb legyen */
+            margin-top: 20px; 
             font-size: 0.8rem;
             opacity: 0.6;
-            letter-spacing: 0.5px;
+            text-align: center;
         }
         
-        /* A mobilra vonatkozó grid szabály eltávolítva, de a padding csökkentés maradhat */
         @media (max-width: 480px) {
             .main-container {
                 padding: 25px 15px;
@@ -245,7 +256,7 @@
         </main>
 
         <section class="name-search-container">
-            <input type="text" id="name-search" placeholder="Keress egy névnapra...">
+            <input type="text" id="name-search" placeholder="Keress egy névnapra és a jelentésére...">
             <div id="search-results"></div>
         </section>
         
@@ -253,6 +264,9 @@
             <p>© <span id="year"></span> Copyright by: Robi</p>
         </footer>
     </div>
+
+    <!-- Az új névnap adatbázis betöltése -->
+    <script src="nevnapok.js"></script>
 
     <script>
     // --- Adatok (Névnapok) ---
@@ -334,7 +348,6 @@
     // --- Refaktorált Logika ---
     document.addEventListener('DOMContentLoaded', () => {
 
-        // --- Konstansok és segédváltozók ---
         const DOM = {
             mainContainer: document.querySelector('.main-container'),
             currentDate: document.getElementById('current-date'),
@@ -351,7 +364,10 @@
         const honapok = ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"];
         const napok = ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"];
 
-        // --- Függvények ---
+        // --- ÚJ segédfüggvény ékezetek eltávolítására ---
+        const normalizeString = (str) => {
+            return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        };
 
         const formatDateKey = (date) => {
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -388,49 +404,63 @@
         };
 
         const updateNameDays = (now) => {
-            const yesterday = new Date(now);
-            yesterday.setDate(now.getDate() - 1);
-            
-            const tomorrow = new Date(now);
-            tomorrow.setDate(now.getDate() + 1);
+            const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+            const tomorrow = new Date(now); tomorrow.setDate(now.getDate() + 1);
 
             const yesterdayKey = formatDateKey(yesterday);
             const todayKey = formatDateKey(now);
             const tomorrowKey = formatDateKey(tomorrow);
 
-            const yesterdayNames = nameDays[yesterdayKey] || ["-"];
-            const todayNames = nameDays[todayKey] || ["-"];
-            const tomorrowNames = nameDays[tomorrowKey] || ["-"];
-            
-            DOM.yesterdayNames.textContent = yesterdayNames.join(', ');
-            DOM.todayNames.textContent = todayNames.join(', ');
-            DOM.tomorrowNames.textContent = tomorrowNames.join(', ');
+            DOM.yesterdayNames.textContent = (nameDays[yesterdayKey] || ["-"]).join(', ');
+            DOM.todayNames.textContent = (nameDays[todayKey] || ["-"]).join(', ');
+            DOM.tomorrowNames.textContent = (nameDays[tomorrowKey] || ["-"]).join(', ');
         };
         
+        // --- MÓDOSÍTOTT KERESŐ LOGIKA ---
         const handleSearch = () => {
             const searchTerm = DOM.searchInput.value.trim().toLowerCase();
-            
-            if (searchTerm.length < 2) {
-                DOM.searchResults.innerHTML = '';
-                return;
-            }
+            DOM.searchResults.innerHTML = '';
+
+            if (searchTerm.length < 2) return;
 
             const foundNames = [];
+            const normalizedSearchTerm = normalizeString(searchTerm);
+
             for (const [dateKey, names] of Object.entries(nameDays)) {
                 for (const name of names) {
-                    if (name.toLowerCase().includes(searchTerm)) {
+                    if (normalizeString(name).includes(normalizedSearchTerm)) {
                         foundNames.push({ name: name, date: formatHumanDate(dateKey) });
                     }
                 }
             }
 
             if (foundNames.length > 0) {
-                const resultHTML = foundNames
-                    .map(item => `<span>${item.name}:</span> ${item.date}`)
-                    .join('<br>');
+                let resultHTML = '';
+                // A duplikációk elkerülésére (pl. ha valakinek több névnapja van)
+                const displayedNames = new Set(); 
+
+                for (const item of foundNames) {
+                    if (displayedNames.has(item.name)) continue;
+
+                    const normalizedName = normalizeString(item.name);
+                    const details = nameDetails[normalizedName]; // Keresés a nevnapok.js-ből
+
+                    resultHTML += `<div class="result-item">`;
+                    resultHTML += `<p class="date">${item.name}: ${item.date}</p>`;
+
+                    if (details) {
+                        resultHTML += `<p class="details"><strong>Jelentése:</strong> ${details.jelentese}</p>`;
+                        if (details.hiresek && details.hiresek.length > 0) {
+                            resultHTML += `<p class="details"><strong>Híres ${item.name} nevűek:</strong> ${details.hiresek.join(', ')}</p>`;
+                        }
+                    }
+                    resultHTML += `</div>`;
+                    displayedNames.add(item.name);
+                }
                 DOM.searchResults.innerHTML = resultHTML;
+
             } else {
-                DOM.searchResults.textContent = 'Nincs találat erre a névre.';
+                DOM.searchResults.innerHTML = `<div class="result-item"><p>Nincs találat a naptárban erre: "${DOM.searchInput.value}"</p></div>`;
             }
         };
 
@@ -439,7 +469,6 @@
             updateHeaderAndFooter(now);
             updateDateStats(now);
             updateNameDays(now);
-            // Betöltési animáció aktiválása
             DOM.mainContainer.classList.add('loaded');
         };
 
