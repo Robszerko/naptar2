@@ -181,10 +181,7 @@
             margin-bottom: 10px;
         }
         .result-item p {
-            margin: 0 0 8px 0;
-        }
-        .result-item p:last-child {
-            margin-bottom: 0;
+            margin: 0;
         }
         .result-item .date {
             font-size: 1rem;
@@ -199,7 +196,6 @@
         }
 
         .footer {
-            /* A margót csökkentettük, hogy közelebb legyen */
             margin-top: 20px; 
             font-size: 0.8rem;
             opacity: 0.6;
@@ -256,7 +252,7 @@
         </main>
 
         <section class="name-search-container">
-            <input type="text" id="name-search" placeholder="Keress egy névnapra és a jelentésére...">
+            <input type="text" id="name-search" placeholder="Keress egy névnapra...">
             <div id="search-results"></div>
         </section>
         
@@ -265,8 +261,7 @@
         </footer>
     </div>
 
-    <!-- Az új névnap adatbázis betöltése -->
-    <script src="nevnapok.js"></script>
+    <!-- A nevnapok.js scriptet eltávolítottuk, mert nincs rá szükség és hibát okoz. -->
 
     <script>
     // --- Adatok (Névnapok) ---
@@ -364,7 +359,6 @@
         const honapok = ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"];
         const napok = ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"];
 
-        // --- ÚJ segédfüggvény ékezetek eltávolítására ---
         const normalizeString = (str) => {
             return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         };
@@ -416,16 +410,19 @@
             DOM.tomorrowNames.textContent = (nameDays[tomorrowKey] || ["-"]).join(', ');
         };
         
-        // --- MÓDOSÍTOTT KERESŐ LOGIKA ---
+        // --- JAVÍTOTT KERESŐ LOGIKA ---
         const handleSearch = () => {
             const searchTerm = DOM.searchInput.value.trim().toLowerCase();
             DOM.searchResults.innerHTML = '';
 
-            if (searchTerm.length < 2) return;
+            if (searchTerm.length < 2) {
+                return; // Ha túl rövid a keresés, ne csináljon semmit
+            }
 
             const foundNames = [];
             const normalizedSearchTerm = normalizeString(searchTerm);
 
+            // 1. Összegyűjtjük a találatokat a 'nameDays' listából
             for (const [dateKey, names] of Object.entries(nameDays)) {
                 for (const name of names) {
                     if (normalizeString(name).includes(normalizedSearchTerm)) {
@@ -434,27 +431,19 @@
                 }
             }
 
+            // 2. Megjelenítjük az eredményeket a jelentés és egyéb részletek keresése nélkül
             if (foundNames.length > 0) {
                 let resultHTML = '';
-                // A duplikációk elkerülésére (pl. ha valakinek több névnapja van)
-                const displayedNames = new Set(); 
+                const displayedNames = new Set(); // Hogy egy nevet csak egyszer írjunk ki
 
                 for (const item of foundNames) {
                     if (displayedNames.has(item.name)) continue;
 
-                    const normalizedName = normalizeString(item.name);
-                    const details = nameDetails[normalizedName]; // Keresés a nevnapok.js-ből
-
+                    // Csak a nevet és a dátumot tartalmazó HTML elemet hozzuk létre
                     resultHTML += `<div class="result-item">`;
                     resultHTML += `<p class="date">${item.name}: ${item.date}</p>`;
-
-                    if (details) {
-                        resultHTML += `<p class="details"><strong>Jelentése:</strong> ${details.jelentese}</p>`;
-                        if (details.hiresek && details.hiresek.length > 0) {
-                            resultHTML += `<p class="details"><strong>Híres ${item.name} nevűek:</strong> ${details.hiresek.join(', ')}</p>`;
-                        }
-                    }
                     resultHTML += `</div>`;
+                    
                     displayedNames.add(item.name);
                 }
                 DOM.searchResults.innerHTML = resultHTML;
