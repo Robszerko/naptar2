@@ -7,16 +7,15 @@
     
     <style>
         :root {
-            --bg-color: #1a1a2e;
-            --container-bg: #1f2847;
+            --bg-color: #1a1a2e; 
+            /* ÚJ, LÁGYABB SZÍNEK */
             --text-color: #e0e0e0;
             --text-header: #ffffff;
             --text-light: #a0aec0;
-            --accent-color: #8B5CF6; 
-            --accent-gradient-end: #7c3aed;
-            --border-color: rgba(139, 92, 246, 0.3);
-            --shadow-color: rgba(0, 0, 0, 0.2);
-            --focus-glow-color: rgba(139, 92, 246, 0.3);
+            --accent-color: #a78bfa; /* Lágyabb lila a kiemelésekhez */
+            --border-color: rgba(167, 139, 250, 0.2);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --focus-glow-color: rgba(167, 139, 250, 0.3);
         }
 
         *, *::before, *::after {
@@ -42,29 +41,28 @@
         }
 
         .card {
-            background: var(--container-bg);
+            /* ÚJ, LÁGYABB, KEVÉSBÉ ÉLÉNK SZÍNÁTMENET */
+            background: linear-gradient(135deg, #1e3a8a 0%, #581c87 40%, #115e59 80%, #1a1a2e 100%);
             border-radius: 24px;
             padding: 30px 35px;
             box-shadow: 0 10px 30px var(--shadow-color);
             margin-bottom: 25px;
             border: 1px solid var(--border-color);
-        }
-        
-        .summary-card {
-            background: linear-gradient(145deg, var(--accent-color), var(--accent-gradient-end));
-            color: var(--text-header);
-            border: none;
+            position: relative;
+            overflow: hidden;
         }
         
         #current-date {
             font-size: 1.4rem;
             font-weight: 700;
             margin: 0 0 12px 0;
+            color: var(--text-header);
         }
         #today-nameday {
             font-size: 1.1rem;
             font-weight: 500;
             margin: 0 0 8px 0;
+            color: var(--text-header);
         }
         #tomorrow-nameday {
             font-size: 1rem;
@@ -73,6 +71,7 @@
             opacity: 0.9;
             padding-bottom: 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-header);
         }
         .stats-line {
             margin: 4px 0 0 0;
@@ -89,9 +88,8 @@
             width: 100%;
             padding: 14px 20px;
             border-radius: 12px;
-            border: 1px solid var(--border-color);
-            font-size: 1rem;
-            background-color: var(--bg-color);
+            border: 1px solid transparent; 
+            background-color: rgba(26, 26, 46, 0.8);
             color: var(--text-color);
             transition: all 0.2s;
             text-align: center;
@@ -109,7 +107,7 @@
             padding: 12px 15px;
             border-radius: 8px;
             margin-bottom: 8px;
-            background-color: var(--bg-color);
+            background-color: rgba(26, 26, 46, 0.8);
             font-weight: 500;
         }
         .result-item strong {
@@ -127,7 +125,7 @@
 <body>
 
     <div class="container">
-        <div class="card summary-card">
+        <div class="card summary-container">
             <h2 id="current-date"></h2>
             <p id="today-nameday"></p>
             <p id="tomorrow-nameday"></p>
@@ -150,6 +148,7 @@
     const App = {
         data: {
             honapok: ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"],
+            napok: ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"],
             nameDays: {
                  "01-01": ["Fruzsina"], "01-02": ["Ábel"], "01-03": ["Benjámin", "Genovéva"], "01-04": ["Leóna", "Titusz"], "01-05": ["Simon"],
                 "01-06": ["Boldizsár"], "01-07": ["Attila", "Ramóna"], "01-08": ["Gyöngyvér"], "01-09": ["Marcell"], "01-10": ["Melánia"],
@@ -255,8 +254,9 @@
             const todayYear = today.getFullYear();
             const todayMonth = today.getMonth();
             const todayDay = today.getDate();
+            const todayDayName = this.data.napok[today.getDay()];
 
-            this.DOM.currentDate.textContent = `${todayYear}. ${this.data.honapok[todayMonth]} ${todayDay}.`;
+            this.DOM.currentDate.textContent = `${todayYear}. ${this.data.honapok[todayMonth]} ${todayDay}. ${todayDayName}`;
             
             const todayKey = `${(todayMonth + 1).toString().padStart(2, '0')}-${todayDay.toString().padStart(2, '0')}`;
             const todayNames = this.data.nameDays[todayKey] || [];
@@ -283,7 +283,6 @@
             const weekOfYear = Math.ceil(dayOfYear / 7);
             const daysRemaining = Math.floor((endOfYear - today) / (1000 * 60 * 60 * 24));
 
-            // MÓDOSÍTOTT SZÖVEG ITT
             this.DOM.dateStatsLine1.innerHTML = `Ma van az év <span>${weekOfYear}</span>. hete és <span>${dayOfYear}</span>. napja.`;
             this.DOM.dateStatsLine2.innerHTML = `Ebből az évből még <span>${daysRemaining}</span> nap van hátra.`;
         },
