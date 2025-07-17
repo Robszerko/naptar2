@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Névnap Naptár</title>
+    <title>Névnap Naptár</title>
     
     <style>
         :root {
-            --bg-gradient-start: #1e293b; /* Sötét palakék */
-            --bg-gradient-end: #3d3b5e;   /* Sötét indigó/lila */
-            --primary-text: #cbd5e1;      /* Halványszürke */
-            --strong-text: #ffffff;       /* Fehér */
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --card-border: rgba(255, 255, 255, 0.1);
-            --card-hover-bg: rgba(255, 255, 255, 0.1);
-            --divider-color: rgba(255, 255, 255, 0.1);
-            --accent-color: #a78bfa;      /* Halvány levendula */
-            --shadow-color: rgba(0, 0, 0, 0.3);
+            --bg-color: #263238; /* Mély kékes-szürke (Blue Grey 900) */
+            --container-bg: #37474f; /* Sötét pala (Blue Grey 800) */
+            --text-color: #cfd8dc; /* Világos kékes-szürke (Blue Grey 100) */
+            --text-light: #90a4ae; /* Halványabb szürke (Blue Grey 400) */
+            --text-header: #ffffff; /* Fehér */
+            --accent-color: #ff7043; /* Élénk korall (Deep Orange 400) */
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.2);
         }
 
         *, *::before, *::after {
@@ -30,441 +28,442 @@
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
-            color: var(--primary-text);
-            background: linear-gradient(145deg, var(--bg-gradient-start), var(--bg-gradient-end));
-            background-attachment: fixed; /* A háttér nem görgődik az oldallal */
+            color: var(--text-color);
+            background-color: var(--bg-color);
             padding: 20px;
         }
 
-        .main-container {
+        .container {
             width: 100%;
-            max-width: 580px;
-            padding: 30px 35px;
-            border-radius: 24px;
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--card-border);
-            box-shadow: 0 8px 32px 0 var(--shadow-color);
-            text-align: center;
+            max-width: 700px;
         }
 
-        .date-header {
+        .card {
+            background: var(--container-bg);
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            margin-bottom: 20px;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 25px;
         }
 
-        #current-date {
-            font-size: 1.5rem;
-            font-weight: 600;
+        .calendar-header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
             margin: 0;
-            color: var(--strong-text);
-            letter-spacing: 0.5px;
+            color: var(--text-header);
         }
 
-        .stats-container {
-            margin-bottom: 30px;
-            padding-bottom: 25px;
-            border-bottom: 1px solid var(--divider-color);
+        .nav-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        .nav-button:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+        .nav-button svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--text-color);
         }
         
-        .stats-container p {
-            font-size: 0.95rem;
-            font-weight: 300;
-            margin: 6px 0;
-            line-height: 1.6;
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
         }
-        
-        .stats-container p span {
-            font-weight: 700;
+
+        .weekday {
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+        .weekday.sunday {
             color: var(--accent-color);
         }
 
-        .nameday-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
-
-        .nameday-card {
-            background: transparent;
-            border-radius: 16px;
-            padding: 20px 15px;
-            border: 1px solid transparent;
+        .day {
+            text-align: center;
+            padding: 8px 4px;
+            min-height: 85px;
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
-            transition: background 0.3s ease, border-color 0.3s ease;
+            align-items: center;
         }
 
-        .nameday-card:hover {
-            background: var(--card-hover-bg);
-            border-color: var(--card-border);
-        }
-
-        .nameday-card h2 {
-            font-size: 1.0rem;
-            font-weight: 500;
-            margin: 0 0 12px 0;
+        .day .day-number {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 6px;
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            color: var(--primary-text);
+            transition: all 0.2s;
+        }
+        .day .day-names {
+            font-size: 0.8rem;
+            font-weight: 500;
+            line-height: 1.4;
         }
         
-        .nameday-card h2 svg {
-            width: 18px;
-            height: 18px;
-            fill: var(--primary-text);
-            opacity: 0.7;
+        .day.other-month {
+            opacity: 0.4;
         }
         
-        .nameday-card.today-card h2 svg {
-            fill: var(--accent-color);
-            opacity: 1;
+        .day.sunday .day-number {
+            color: var(--accent-color);
         }
-        .nameday-card.today-card {
-            background: var(--card-hover-bg);
-            border: 1px solid var(--card-border);
+        
+        .day.today .day-number {
+            background-color: var(--accent-color);
+            color: var(--text-header);
+            border-radius: 50%;
         }
-
-
-        #today-names, #tomorrow-names, #yesterday-names {
+        .day.today .day-names {
+            color: var(--text-header);
+            font-weight: 700;
+        }
+        
+        .today-summary {
+            text-align: center;
+        }
+        #today-full-summary {
             font-size: 1.1rem;
             font-weight: 600;
-            color: var(--strong-text);
-            margin: 0;
-            min-height: 40px;
-            line-height: 1.4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
+            color: var(--text-header);
+            margin: 0 0 10px 0;
         }
-        
-        .name-search-container {
-            margin-top: 35px;
-            padding-top: 25px;
-            border-top: 1px solid var(--divider-color);
-            text-align: left;
+        .today-summary p {
+            margin: 4px 0 0 0;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        .today-summary p span {
+            font-weight: 600;
+            color: var(--text-color);
         }
 
         #name-search {
             width: 100%;
             padding: 12px 20px;
             border-radius: 12px;
-            border: 1px solid var(--card-border);
-            background-color: var(--card-bg);
-            color: var(--strong-text);
-            font-family: inherit;
+            border: 1px solid var(--border-color);
             font-size: 1rem;
-            transition: all 0.3s ease;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: border-color 0.2s;
         }
-        
-        #name-search::placeholder {
-            color: var(--primary-text);
-            opacity: 0.7;
-        }
-        
         #name-search:focus {
             outline: none;
             border-color: var(--accent-color);
-            background-color: var(--card-hover-bg);
         }
-        
         #search-results {
-            margin-top: 20px;
+            margin-top: 15px;
         }
-        
         .result-item {
-            background: var(--card-hover-bg);
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
-            margin-bottom: 10px;
-            border-left: 3px solid var(--accent-color);
-        }
-        .result-item p {
-            margin: 0;
-        }
-        .result-item .date {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--strong-text);
-        }
-
-        .footer {
-            margin-top: 25px; 
-            font-size: 0.8rem;
-            opacity: 0.6;
-            text-align: center;
+            margin-bottom: 8px;
+            background-color: var(--bg-color);
         }
         
-        @media (max-width: 480px) {
-            .main-container {
-                padding: 25px 15px;
-            }
-            .nameday-grid {
-                grid-template-columns: 1fr; /* Mobilon egymás alá kerülnek a kártyák */
-            }
-            #current-date {
-                font-size: 1.3rem;
-            }
+        @media (max-width: 600px) {
+            .card { padding: 15px; }
+            .day { min-height: 70px; padding: 4px 2px; }
+            .day .day-names { font-size: 0.7rem; }
+            .calendar-header h1 { font-size: 1.4rem; }
+            #today-full-summary { font-size: 1rem; }
+            .today-summary p { font-size: 0.8rem; }
         }
     </style>
 </head>
 <body>
 
-    <div class="main-container">
-        <header class="date-header">
-            <h1 id="current-date">Betöltés...</h1>
-        </header>
+    <div class="container">
+        <!-- ÚJ ELRENDEZÉS: ÖSSZEGZŐ FELÜL -->
+        <div class="card today-summary">
+            <h2 id="today-full-summary"></h2>
+            <p id="date-stats-line1"></p>
+            <p id="date-stats-line2"></p>
+        </div>
 
-        <section class="stats-container">
-            <p id="date-stats-line1">...</p>
-            <p id="date-stats-line2">...</p>
-        </section>
-
-        <main class="nameday-grid">
-            <div class="nameday-card">
-                <h2>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-                    Tegnap
-                </h2>
-                <p id="yesterday-names">...</p>
+        <div class="card calendar-container">
+            <div class="calendar-header">
+                <button id="prev-month" class="nav-button" aria-label="Előző hónap">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
+                </button>
+                <h1 id="month-year"></h1>
+                <button id="next-month" class="nav-button" aria-label="Következő hónap">
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                </button>
             </div>
-            <div class="nameday-card today-card">
-                <h2>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"></path></svg>
-                    Ma
-                </h2>
-                <p id="today-names">...</p>
-            </div>
-            <div class="nameday-card">
-                <h2>
-                    Holnap
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/></svg>
-                </h2>
-                <p id="tomorrow-names">...</p>
-            </div>
-        </main>
-
-        <section class="name-search-container">
-            <input type="text" id="name-search" placeholder="Keress egy névnapra...">
-            <div id="search-results"></div>
-        </section>
+            <div class="calendar-grid" id="weekdays-grid"></div>
+            <div class="calendar-grid" id="days-grid"></div>
+        </div>
         
-        <footer class="footer">
-            <p>© <span id="year"></span> Copyright by: Robi</p>
-        </footer>
+        <div class="card search-container">
+             <input type="text" id="name-search" placeholder="Keress névnapra...">
+             <div id="search-results"></div>
+        </div>
     </div>
 
-    <!-- A JavaScript rész érintetlen maradt, mivel a funkcionalitás nem változott. -->
+
     <script>
-    // --- Adatok (Névnapok) ---
-    const nameDays = {
-        "01-01": ["Fruzsina"], "01-02": ["Ábel"], "01-03": ["Benjámin", "Genovéva"], "01-04": ["Leóna", "Titusz"], "01-05": ["Simon"],
-        "01-06": ["Boldizsár"], "01-07": ["Attila", "Ramóna"], "01-08": ["Gyöngyvér"], "01-09": ["Marcell"], "01-10": ["Melánia"],
-        "01-11": ["Ágota"], "01-12": ["Ernő"], "01-13": ["Veronika"], "01-14": ["Bódog"], "01-15": ["Lóránd", "Lóránt"],
-        "01-16": ["Gusztáv"], "01-17": ["Antal", "Antónia"], "01-18": ["Piroska"], "01-19": ["Márió", "Sára"], "01-20": ["Fábián", "Sebestyén"],
-        "01-21": ["Ágnes"], "01-22": ["Artúr", "Vince"], "01-23": ["Rajmund", "Zelma"], "01-24": ["Timót"], "01-25": ["Pál"],
-        "01-26": ["Paula", "Vanda"], "01-27": ["Angelika"], "01-28": ["Karola", "Károly"], "01-29": ["Adél"], "01-30": ["Martina"], "01-31": ["Gerda", "Marcella"],
-        "02-01": ["Ignác"], "02-02": ["Aida", "Karolina"], "02-03": ["Balázs"], "02-04": ["Csenge", "Ráhel"], "02-05": ["Ágota", "Ingrid"],
-        "02-06": ["Dóra", "Dorottya"], "02-07": ["Rómeó", "Tódor"], "02-08": ["Aranka"], "02-09": ["Abigél", "Alex"], "02-10": ["Elvira"],
-        "02-11": ["Bertold", "Marietta"], "02-12": ["Lídia", "Lívia"], "02-13": ["Ella", "Linda"], "02-14": ["Bálint", "Valentin"],
-        "02-15": ["Georgina", "Kolos"], "02-16": ["Julianna", "Lilla"], "02-17": ["Donát"], "02-18": ["Bernadett"], "02-19": ["Zsuzsanna"],
-        "02-20": ["Aladár", "Álmos"], "02-21": ["Eleonóra"], "02-22": ["Gerzson"], "02-23": ["Alfréd"], "02-24": ["Mátyás"],
-        "02-25": ["Géza"], "02-26": ["Edina"], "02-27": ["Ákos", "Bátor"], "02-28": ["Elemér"], "02-29": ["Szökőnap"],
-        "03-01": ["Albin"], "03-02": ["Lujza"], "03-03": ["Kornélia"], "03-04": ["Kázmér"], "03-05": ["Adorján", "Adrián"],
-        "03-06": ["Inez", "Leonóra"], "03-07": ["Tamás"], "03-08": ["Zoltán"], "03-09": ["Fanni", "Franciska"], "03-10": ["Ildikó"],
-        "03-11": ["Szilárd"], "03-12": ["Gergely"], "03-13": ["Ajtony", "Krisztián"], "03-14": ["Matild"], "03-15": ["Kristóf"],
-        "03-16": ["Henrietta"], "03-17": ["Gertrúd", "Patrik"], "03-18": ["Ede", "Sándor"], "03-19": ["Bánk", "József"], "03-20": ["Klaudia"],
-        "03-21": ["Benedek"], "03-22": ["Beáta", "Izolda"], "03-23": ["Emőke"], "03-24": ["Gábor", "Karina"], "03-25": ["Irén", "Írisz"],
-        "03-26": ["Emánuel"], "03-27": ["Hajnalka"], "03-28": ["Gedeon", "Johanna"], "03-29": ["Auguszta"], "03-30": ["Zalán"], "03-31": ["Árpád"],
-        "04-01": ["Hugó"], "04-02": ["Áron"], "04-03": ["Buda", "Richárd"], "04-04": ["Izidor"], "04-05": ["Vince"], "04-06": ["Bíborka", "Vilmos"],
-        "04-07": ["Herman"], "04-08": ["Dénes"], "04-09": ["Erhard"], "04-10": ["Zsolt"], "04-11": ["Leó", "Szaniszló"], "04-12": ["Gyula"],
-        "04-13": ["Ida"], "04-14": ["Tibor"], "04-15": ["Anasztázia", "Tas"], "04-16": ["Csongor"], "04-17": ["Rudolf"],
-        "04-18": ["Andrea", "Ilma"], "04-19": ["Emma"], "04-20": ["Tivadar"], "04-21": ["Konrád"], "04-22": ["Csilla", "Noémi"],
-        "04-23": ["Béla"], "04-24": ["György"], "04-25": ["Márk"], "04-26": ["Ervin"], "04-27": ["Zita"], "04-28": ["Valéria"],
-        "04-29": ["Péter"], "04-30": ["Katalin", "Kitti"],
-        "05-01": ["Fülöp", "Jakab"], "05-02": ["Zsigmond"], "05-03": ["Irma", "Tímea"], "05-04": ["Flórián", "Mónika"], "05-05": ["Adrián", "Györgyi"],
-        "05-06": ["Frida", "Ivett"], "05-07": ["Gizella"], "05-08": ["Mihály"], "05-09": ["Gergely"], "05-10": ["Ármin", "Pálma"],
-        "05-11": ["Ferenc"], "05-12": ["Pongrác"], "05-13": ["Imola", "Szervác"], "05-14": ["Bonifác"], "05-15": ["Szonja", "Zsófia"],
-        "05-16": ["Botond", "Mózes"], "05-17": ["Paszkál"], "05-18": ["Alexandra", "Erik"], "05-19": ["Ivó", "Milán"], "05-20": ["Bernát", "Felícia"],
-        "05-21": ["Konstantin"], "05-22": ["Júlia", "Rita"], "05-23": ["Dezső"], "05-24": ["Eliza", "Eszter"], "05-25": ["Orbán"],
-        "05-26": ["Evelin", "Fülöp"], "05-27": ["Hella"], "05-28": ["Csanád", "Emil"], "05-29": ["Magdolna"], "05-30": ["Janka", "Zsanett"], "05-31": ["Angéla"],
-        "06-01": ["Tünde"], "06-02": ["Anita", "Kármen"], "06-03": ["Klotild"], "06-04": ["Bulcsú"], "06-05": ["Fatime"], "06-06": ["Cintia", "Norbert"],
-        "06-07": ["Róbert"], "06-08": ["Medárd"], "06-09": ["Félix"], "06-10": ["Gréta", "Margit"], "06-11": ["Barnabás"], "06-12": ["Villő"],
-        "06-13": ["Anett", "Antal"], "06-14": ["Vazul"], "06-15": ["Jolán", "Vid"], "06-16": ["Jusztin"], "06-17": ["Alida", "Laura"],
-        "06-18": ["Arnold", "Levente"], "06-19": ["Gyárfás"], "06-20": ["Rafael"], "06-21": ["Alajos", "Leila"], "06-22": ["Paulina"],
-        "06-23": ["Zoltán"], "06-24": ["Iván"], "06-25": ["Vilmos"], "06-26": ["János", "Pál"], "06-27": ["László"], "06-28": ["Irén", "Levente"],
-        "06-29": ["Péter", "Pál"], "06-30": ["Pál"],
-        "07-01": ["Annamária", "Tihamér"], "07-02": ["Ottó"], "07-03": ["Kornél", "Soma"], "07-04": ["Ulrik"], "07-05": ["Emese", "Sarolta"],
-        "07-06": ["Csaba"], "07-07": ["Apollónia"], "07-08": ["Ellák"], "07-09": ["Lukrécia"], "07-10": ["Amália"], "07-11": ["Lili", "Nóra"],
-        "07-12": ["Dalma", "Izabella"], "07-13": ["Jenő"], "07-14": ["Örs", "Stella"], "07-15": ["Henrik", "Roland"], "07-16": ["Valter"],
-        "07-17": ["Elek", "Endre"], "07-18": ["Frigyes"], "07-19": ["Emília"], "07-20": ["Illés"], "07-21": ["Dániel", "Daniella"],
-        "07-22": ["Magdolna"], "07-23": ["Lenke"], "07-24": ["Kincső", "Kinga"], "07-25": ["Jakab", "Kristóf"], "07-26": ["Anikó", "Anna"],
-        "07-27": ["Liliána", "Olga"], "07-28": ["Szabolcs"], "07-29": ["Flóra", "Márta"], "07-30": ["Judit", "Xénia"], "07-31": ["Oszkár"],
-        "08-01": ["Boglárka"], "08-02": ["Lehel"], "08-03": ["Hermina"], "08-04": ["Dominika", "Dominik", "Domonkos"], "08-05": ["Krisztina"],
-        "08-06": ["Berta", "Bettina"], "08-07": ["Ibolya"], "08-08": ["László"], "08-09": ["Emőd"], "08-10": ["Lőrinc"],
-        "08-11": ["Tiborc", "Zsuzsanna"], "08-12": ["Klára"], "08-13": ["Ipoly"], "08-14": ["Marcell"], "08-15": ["Mária"],
-        "08-16": ["Ábrahám"], "08-17": ["Jácint"], "08-18": ["Ilona"], "08-19": ["Huba"], "08-20": ["István"],
-        "08-21": ["Hajna", "Sámuel"], "08-22": ["Menyhért", "Mirjam"], "08-23": ["Bence"], "08-24": ["Bertalan"], "08-25": ["Lajos", "Patrícia"],
-        "08-26": ["Izsó"], "08-27": ["Gáspár"], "08-28": ["Ágoston"], "08-29": ["Beatrix", "Erna"], "08-30": ["Rózsa"], "08-31": ["Bella", "Erika"],
-        "09-01": ["Egon", "Egyed"], "09-02": ["Dorina", "Rebeka"], "09-03": ["Hilda"], "09-04": ["Rozália"], "09-05": ["Lőrinc", "Viktor"],
-        "09-06": ["Zakariás"], "09-07": ["Regina"], "09-08": ["Adrienn", "Mária"], "09-09": ["Ádám"], "09-10": ["Hunor", "Nikolett"],
-        "09-11": ["Teodóra"], "09-12": ["Mária"], "09-13": ["Kornél"], "09-14": ["Roxána", "Szeréna"], "09-15": ["Enikő", "Melitta"],
-        "09-16": ["Edit"], "09-17": ["Zsófia"], "09-18": ["Diána"], "09-19": ["Vilhelmina"], "09-20": ["Friderika"], "09-21": ["Máté", "Mirella"],
-        "09-22": ["Móric"], "09-23": ["Tekla"], "09-24": ["Gellért", "Mercédesz"], "09-25": ["Eufrozina", "Kende"], "09-26": ["Jusztina", "Pál"],
-        "09-27": ["Adalbert"], "09-28": ["Vencel"], "09-29": ["Mihály"], "09-30": ["Jeromos"],
-        "10-01": ["Malvin"], "10-02": ["Petra"], "10-03": ["Helga"], "10-04": ["Ferenc"], "10-05": ["Aurél"], "10-06": ["Brúnó", "Renáta"],
-        "10-07": ["Amália"], "10-08": ["Koppány"], "10-09": ["Dénes"], "10-10": ["Gedeon"], "10-11": ["Brigitta"], "10-12": ["Miksa"],
-        "10-13": ["Ede", "Kálmán"], "10-14": ["Helén"], "10-15": ["Teréz"], "10-16": ["Gál"], "10-17": ["Hedvig"], "10-18": ["Lukács"],
-        "10-19": ["Nándor"], "10-20": ["Vendel"], "10-21": ["Orsolya"], "10-22": ["Előd"], "10-23": ["Gyöngyi"], "10-24": ["Salamon"],
-        "10-25": ["Bianka", "Blanka"], "10-26": ["Dömötör"], "10-27": ["Szabina"], "10-28": ["Simon", "Szimonetta"], "10-29": ["Nárcisz"],
-        "10-30": ["Alfonz"], "10-31": ["Farkas"],
-        "11-01": ["Marianna"], "11-02": ["Achilles"], "11-03": ["Győző"], "11-04": ["Károly"], "11-05": ["Imre"], "11-06": ["Lénárd"],
-        "11-07": ["Rezső"], "11-08": ["Zsombor"], "11-09": ["Tivadar"], "11-10": ["Réka"], "11-11": ["Márton"], "11-12": ["Jónás", "Renátó"],
-        "11-13": ["Szilvia"], "11-14": ["Aliz"], "11-15": ["Albert", "Lipót"], "11-16": ["Ödön"], "11-17": ["Gergely", "Hortenzia"],
-        "11-18": ["Jenő"], "11-19": ["Erzsébet", "Elizabet"], "11-20": ["Jolán"], "11-21": ["Olivér"], "11-22": ["Cecília"],
-        "11-23": ["Kelemen", "Klementina"], "11-24": ["Emma"], "11-25": ["Katalin"], "11-26": ["Virág"], "11-27": ["Virgil"],
-        "11-28": ["Stefánia"], "11-29": ["Taksony"], "11-30": ["Andor", "András"],
-        "12-01": ["Elza"], "12-02": ["Melinda", "Vivien"], "12-03": ["Ferenc", "Olívia"], "12-04": ["Barbara", "Borbála"], "12-05": ["Vilma"],
-        "12-06": ["Miklós"], "12-07": ["Ambrus"], "12-08": ["Mária"], "12-09": ["Natália"], "12-10": ["Judit"], "12-11": ["Árpád"],
-        "12-12": ["Gabriella"], "12-13": ["Luca", "Otília"], "12-14": ["Szilárda"], "12-15": ["Valér"], "12-16": ["Aletta", "Etelka"],
-        "12-17": ["Lázár", "Olimpia"], "12-18": ["Auguszta"], "12-19": ["Viola"], "12-20": ["Teofil"], "12-21": ["Tamás"],
-        "12-22": ["Zénó"], "12-23": ["Viktória"], "12-24": ["Ádám", "Éva"], "12-25": ["Eugénia"], "12-26": ["István"],
-        "12-27": ["János"], "12-28": ["Kamilla"], "12-29": ["Tamara", "Tamás"], "12-30": ["Dávid"], "12-31": ["Szilveszter"]
-    };
+    const App = {
+        state: {
+            displayDate: new Date(),
+        },
+        data: {
+            honapok: ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"],
+            napok: ["H", "K", "Sze", "Cs", "P", "Szo", "V"],
+            nameDays: {
+                 "01-01": ["Fruzsina"], "01-02": ["Ábel"], "01-03": ["Benjámin", "Genovéva"], "01-04": ["Leóna", "Titusz"], "01-05": ["Simon"],
+                "01-06": ["Boldizsár"], "01-07": ["Attila", "Ramóna"], "01-08": ["Gyöngyvér"], "01-09": ["Marcell"], "01-10": ["Melánia"],
+                "01-11": ["Ágota"], "01-12": ["Ernő"], "01-13": ["Veronika"], "01-14": ["Bódog"], "01-15": ["Lóránd", "Lóránt"],
+                "01-16": ["Gusztáv"], "01-17": ["Antal", "Antónia"], "01-18": ["Piroska"], "01-19": ["Márió", "Sára"], "01-20": ["Fábián", "Sebestyén"],
+                "01-21": ["Ágnes"], "01-22": ["Artúr", "Vince"], "01-23": ["Rajmund", "Zelma"], "01-24": ["Timót"], "01-25": ["Pál"],
+                "01-26": ["Paula", "Vanda"], "01-27": ["Angelika"], "01-28": ["Karola", "Károly"], "01-29": ["Adél"], "01-30": ["Martina"], "01-31": ["Gerda", "Marcella"],
+                "02-01": ["Ignác"], "02-02": ["Aida", "Karolina"], "02-03": ["Balázs"], "02-04": ["Csenge", "Ráhel"], "02-05": ["Ágota", "Ingrid"],
+                "02-06": ["Dóra", "Dorottya"], "02-07": ["Rómeó", "Tódor"], "02-08": ["Aranka"], "02-09": ["Abigél", "Alex"], "02-10": ["Elvira"],
+                "02-11": ["Bertold", "Marietta"], "02-12": ["Lídia", "Lívia"], "02-13": ["Ella", "Linda"], "02-14": ["Bálint", "Valentin"],
+                "02-15": ["Georgina", "Kolos"], "02-16": ["Julianna", "Lilla"], "02-17": ["Donát"], "02-18": ["Bernadett"], "02-19": ["Zsuzsanna"],
+                "02-20": ["Aladár", "Álmos"], "02-21": ["Eleonóra"], "02-22": ["Gerzson"], "02-23": ["Alfréd"], "02-24": ["Mátyás"],
+                "02-25": ["Géza"], "02-26": ["Edina"], "02-27": ["Ákos", "Bátor"], "02-28": ["Elemér"], "02-29": ["Szökőnap"],
+                "03-01": ["Albin"], "03-02": ["Lujza"], "03-03": ["Kornélia"], "03-04": ["Kázmér"], "03-05": ["Adorján", "Adrián"],
+                "03-06": ["Inez", "Leonóra"], "03-07": ["Tamás"], "03-08": ["Zoltán"], "03-09": ["Fanni", "Franciska"], "03-10": ["Ildikó"],
+                "03-11": ["Szilárd"], "03-12": ["Gergely"], "03-13": ["Ajtony", "Krisztián"], "03-14": ["Matild"], "03-15": ["Kristóf"],
+                "03-16": ["Henrietta"], "03-17": ["Gertrúd", "Patrik"], "03-18": ["Ede", "Sándor"], "03-19": ["Bánk", "József"], "03-20": ["Klaudia"],
+                "03-21": ["Benedek"], "03-22": ["Beáta", "Izolda"], "03-23": ["Emőke"], "03-24": ["Gábor", "Karina"], "03-25": ["Irén", "Írisz"],
+                "03-26": ["Emánuel"], "03-27": ["Hajnalka"], "03-28": ["Gedeon", "Johanna"], "03-29": ["Auguszta"], "03-30": ["Zalán"], "03-31": ["Árpád"],
+                "04-01": ["Hugó"], "04-02": ["Áron"], "04-03": ["Buda", "Richárd"], "04-04": ["Izidor"], "04-05": ["Vince"], "04-06": ["Bíborka", "Vilmos"],
+                "04-07": ["Herman"], "04-08": ["Dénes"], "04-09": ["Erhard"], "04-10": ["Zsolt"], "04-11": ["Leó", "Szaniszló"], "04-12": ["Gyula"],
+                "04-13": ["Ida"], "04-14": ["Tibor"], "04-15": ["Anasztázia", "Tas"], "04-16": ["Csongor"], "04-17": ["Rudolf"],
+                "04-18": ["Andrea", "Ilma"], "04-19": ["Emma"], "04-20": ["Tivadar"], "04-21": ["Konrád"], "04-22": ["Csilla", "Noémi"],
+                "04-23": ["Béla"], "04-24": ["György"], "04-25": ["Márk"], "04-26": ["Ervin"], "04-27": ["Zita"], "04-28": ["Valéria"],
+                "04-29": ["Péter"], "04-30": ["Katalin", "Kitti"],
+                "05-01": ["Fülöp", "Jakab"], "05-02": ["Zsigmond"], "05-03": ["Irma", "Tímea"], "05-04": ["Flórián", "Mónika"], "05-05": ["Adrián", "Györgyi"],
+                "05-06": ["Frida", "Ivett"], "05-07": ["Gizella"], "05-08": ["Mihály"], "05-09": ["Gergely"], "05-10": ["Ármin", "Pálma"],
+                "05-11": ["Ferenc"], "05-12": ["Pongrác"], "05-13": ["Imola", "Szervác"], "05-14": ["Bonifác"], "05-15": ["Szonja", "Zsófia"],
+                "05-16": ["Botond", "Mózes"], "05-17": ["Paszkál"], "05-18": ["Alexandra", "Erik"], "05-19": ["Ivó", "Milán"], "05-20": ["Bernát", "Felícia"],
+                "05-21": ["Konstantin"], "05-22": ["Júlia", "Rita"], "05-23": ["Dezső"], "05-24": ["Eliza", "Eszter"], "05-25": ["Orbán"],
+                "05-26": ["Evelin", "Fülöp"], "05-27": ["Hella"], "05-28": ["Csanád", "Emil"], "05-29": ["Magdolna"], "05-30": ["Janka", "Zsanett"], "05-31": ["Angéla"],
+                "06-01": ["Tünde"], "06-02": ["Anita", "Kármen"], "06-03": ["Klotild"], "06-04": ["Bulcsú"], "06-05": ["Fatime"], "06-06": ["Cintia", "Norbert"],
+                "06-07": ["Róbert"], "06-08": ["Medárd"], "06-09": ["Félix"], "06-10": ["Gréta", "Margit"], "06-11": ["Barnabás"], "06-12": ["Villő"],
+                "06-13": ["Anett", "Antal"], "06-14": ["Vazul"], "06-15": ["Jolán", "Vid"], "06-16": ["Jusztin"], "06-17": ["Alida", "Laura"],
+                "06-18": ["Arnold", "Levente"], "06-19": ["Gyárfás"], "06-20": ["Rafael"], "06-21": ["Alajos", "Leila"], "06-22": ["Paulina"],
+                "06-23": ["Zoltán"], "06-24": ["Iván"], "06-25": ["Vilmos"], "06-26": ["János", "Pál"], "06-27": ["László"], "06-28": ["Irén", "Levente"],
+                "06-29": ["Péter", "Pál"], "06-30": ["Pál"],
+                "07-01": ["Annamária", "Tihamér"], "07-02": ["Ottó"], "07-03": ["Kornél", "Soma"], "07-04": ["Ulrik"], "07-05": ["Emese", "Sarolta"],
+                "07-06": ["Csaba"], "07-07": ["Apollónia"], "07-08": ["Ellák"], "07-09": ["Lukrécia"], "07-10": ["Amália"], "07-11": ["Lili", "Nóra"],
+                "07-12": ["Dalma", "Izabella"], "07-13": ["Jenő"], "07-14": ["Örs", "Stella"], "07-15": ["Henrik", "Roland"], "07-16": ["Valter"],
+                "07-17": ["Elek", "Endre"], "07-18": ["Frigyes"], "07-19": ["Emília"], "07-20": ["Illés"], "07-21": ["Dániel", "Daniella"],
+                "07-22": ["Magdolna"], "07-23": ["Lenke"], "07-24": ["Kincső", "Kinga"], "07-25": ["Jakab", "Kristóf"], "07-26": ["Anikó", "Anna"],
+                "07-27": ["Liliána", "Olga"], "07-28": ["Szabolcs"], "07-29": ["Flóra", "Márta"], "07-30": ["Judit", "Xénia"], "07-31": ["Oszkár"],
+                "08-01": ["Boglárka"], "08-02": ["Lehel"], "08-03": ["Hermina"], "08-04": ["Dominika", "Dominik", "Domonkos"], "08-05": ["Krisztina"],
+                "08-06": ["Berta", "Bettina"], "08-07": ["Ibolya"], "08-08": ["László"], "08-09": ["Emőd"], "08-10": ["Lőrinc"],
+                "08-11": ["Tiborc", "Zsuzsanna"], "08-12": ["Klára"], "08-13": ["Ipoly"], "08-14": ["Marcell"], "08-15": ["Mária"],
+                "08-16": ["Ábrahám"], "08-17": ["Jácint"], "08-18": ["Ilona"], "08-19": ["Huba"], "08-20": ["István"],
+                "08-21": ["Hajna", "Sámuel"], "08-22": ["Menyhért", "Mirjam"], "08-23": ["Bence"], "08-24": ["Bertalan"], "08-25": ["Lajos", "Patrícia"],
+                "08-26": ["Izsó"], "08-27": ["Gáspár"], "08-28": ["Ágoston"], "08-29": ["Beatrix", "Erna"], "08-30": ["Rózsa"], "08-31": ["Bella", "Erika"],
+                "09-01": ["Egon", "Egyed"], "09-02": ["Dorina", "Rebeka"], "09-03": ["Hilda"], "09-04": ["Rozália"], "09-05": ["Lőrinc", "Viktor"],
+                "09-06": ["Zakariás"], "09-07": ["Regina"], "09-08": ["Adrienn", "Mária"], "09-09": ["Ádám"], "09-10": ["Hunor", "Nikolett"],
+                "09-11": ["Teodóra"], "09-12": ["Mária"], "09-13": ["Kornél"], "09-14": ["Roxána", "Szeréna"], "09-15": ["Enikő", "Melitta"],
+                "09-16": ["Edit"], "09-17": ["Zsófia"], "09-18": ["Diána"], "09-19": ["Vilhelmina"], "09-20": ["Friderika"], "09-21": ["Máté", "Mirella"],
+                "09-22": ["Móric"], "09-23": ["Tekla"], "09-24": ["Gellért", "Mercédesz"], "09-25": ["Eufrozina", "Kende"], "09-26": ["Jusztina", "Pál"],
+                "09-27": ["Adalbert"], "09-28": ["Vencel"], "09-29": ["Mihály"], "09-30": ["Jeromos"],
+                "10-01": ["Malvin"], "10-02": ["Petra"], "10-03": ["Helga"], "10-04": ["Ferenc"], "10-05": ["Aurél"], "10-06": ["Brúnó", "Renáta"],
+                "10-07": ["Amália"], "10-08": ["Koppány"], "10-09": ["Dénes"], "10-10": ["Gedeon"], "10-11": ["Brigitta"], "10-12": ["Miksa"],
+                "10-13": ["Ede", "Kálmán"], "10-14": ["Helén"], "10-15": ["Teréz"], "10-16": ["Gál"], "10-17": ["Hedvig"], "10-18": ["Lukács"],
+                "10-19": ["Nándor"], "10-20": ["Vendel"], "10-21": ["Orsolya"], "10-22": ["Előd"], "10-23": ["Gyöngyi"], "10-24": ["Salamon"],
+                "10-25": ["Bianka", "Blanka"], "10-26": ["Dömötör"], "10-27": ["Szabina"], "10-28": ["Simon", "Szimonetta"], "10-29": ["Nárcisz"],
+                "10-30": ["Alfonz"], "10-31": ["Farkas"],
+                "11-01": ["Marianna"], "11-02": ["Achilles"], "11-03": ["Győző"], "11-04": ["Károly"], "11-05": ["Imre"], "11-06": ["Lénárd"],
+                "11-07": ["Rezső"], "11-08": ["Zsombor"], "11-09": ["Tivadar"], "11-10": ["Réka"], "11-11": ["Márton"], "11-12": ["Jónás", "Renátó"],
+                "11-13": ["Szilvia"], "11-14": ["Aliz"], "11-15": ["Albert", "Lipót"], "11-16": ["Ödön"], "11-17": ["Gergely", "Hortenzia"],
+                "11-18": ["Jenő"], "11-19": ["Erzsébet", "Elizabet"], "11-20": ["Jolán"], "11-21": ["Olivér"], "11-22": ["Cecília"],
+                "11-23": ["Kelemen", "Klementina"], "11-24": ["Emma"], "11-25": ["Katalin"], "11-26": ["Virág"], "11-27": ["Virgil"],
+                "11-28": ["Stefánia"], "11-29": ["Taksony"], "11-30": ["Andor", "András"],
+                "12-01": ["Elza"], "12-02": ["Melinda", "Vivien"], "12-03": ["Ferenc", "Olívia"], "12-04": ["Barbara", "Borbála"], "12-05": ["Vilma"],
+                "12-06": ["Miklós"], "12-07": ["Ambrus"], "12-08": ["Mária"], "12-09": ["Natália"], "12-10": ["Judit"], "12-11": ["Árpád"],
+                "12-12": ["Gabriella"], "12-13": ["Luca", "Otília"], "12-14": ["Szilárda"], "12-15": ["Valér"], "12-16": ["Aletta", "Etelka"],
+                "12-17": ["Lázár", "Olimpia"], "12-18": ["Auguszta"], "12-19": ["Viola"], "12-20": ["Teofil"], "12-21": ["Tamás"],
+                "12-22": ["Zénó"], "12-23": ["Viktória"], "12-24": ["Ádám", "Éva"], "12-25": ["Eugénia"], "12-26": ["István"],
+                "12-27": ["János"], "12-28": ["Kamilla"], "12-29": ["Tamara", "Tamás"], "12-30": ["Dávid"], "12-31": ["Szilveszter"]
+            },
+        },
+        DOM: {},
 
-    document.addEventListener('DOMContentLoaded', () => {
+        init() {
+            this.cacheDOM();
+            this.setupEventListeners();
+            this.render();
+            this.renderTodaySummary();
+        },
 
-        const DOM = {
-            mainContainer: document.querySelector('.main-container'),
-            currentDate: document.getElementById('current-date'),
-            statsLine1: document.getElementById('date-stats-line1'),
-            statsLine2: document.getElementById('date-stats-line2'),
-            yesterdayNames: document.getElementById('yesterday-names'),
-            todayNames: document.getElementById('today-names'),
-            tomorrowNames: document.getElementById('tomorrow-names'),
-            year: document.getElementById('year'),
-            searchInput: document.getElementById('name-search'),
-            searchResults: document.getElementById('search-results'),
-        };
+        cacheDOM() {
+            this.DOM.monthYear = document.getElementById('month-year');
+            this.DOM.weekdaysGrid = document.getElementById('weekdays-grid');
+            this.DOM.daysGrid = document.getElementById('days-grid');
+            this.DOM.prevMonthBtn = document.getElementById('prev-month');
+            this.DOM.nextMonthBtn = document.getElementById('next-month');
+            this.DOM.searchInput = document.getElementById('name-search');
+            this.DOM.searchResults = document.getElementById('search-results');
+            this.DOM.todayFullSummary = document.getElementById('today-full-summary');
+            this.DOM.dateStatsLine1 = document.getElementById('date-stats-line1');
+            this.DOM.dateStatsLine2 = document.getElementById('date-stats-line2');
+        },
 
-        const honapok = ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"];
-        const napok = ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"];
+        setupEventListeners() {
+            this.DOM.prevMonthBtn.addEventListener('click', () => this.changeMonth(-1));
+            this.DOM.nextMonthBtn.addEventListener('click', () => this.changeMonth(1));
+            this.DOM.searchInput.addEventListener('input', () => this.handleSearch());
+        },
 
-        const normalizeString = (str) => {
-            return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        };
-
-        const formatDateKey = (date) => {
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const day = date.getDate().toString().padStart(2, '0');
-            return `${month}-${day}`;
-        };
-
-        const formatHumanDate = (dateKey) => {
-            const [month, day] = dateKey.split('-').map(Number);
-            return `${honapok[month - 1]} ${day}.`;
-        };
-
-        const updateHeaderAndFooter = (now) => {
-            const year = now.getFullYear();
-            const monthName = honapok[now.getMonth()];
-            const dayOfMonth = now.getDate();
-            const dayName = napok[now.getDay()];
-            
-            DOM.currentDate.textContent = `${year}. ${monthName} ${dayOfMonth}., ${dayName}`;
-            DOM.year.textContent = year;
-        };
+        changeMonth(direction) {
+            this.state.displayDate.setMonth(this.state.displayDate.getMonth() + direction);
+            this.render();
+        },
         
-        const updateDateStats = (now) => {
-            const year = now.getFullYear();
+        render() {
+            this.renderWeekdays();
+            this.renderDays();
+        },
+
+        renderWeekdays() {
+            let weekdaysHTML = '';
+            this.data.napok.forEach((day, index) => {
+                const isSunday = index === 6;
+                weekdaysHTML += `<div class="weekday ${isSunday ? 'sunday' : ''}">${day}</div>`;
+            });
+            this.DOM.weekdaysGrid.innerHTML = weekdaysHTML;
+        },
+
+        renderDays() {
+            const date = this.state.displayDate;
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            
+            this.DOM.monthYear.textContent = `${this.data.honapok[month].charAt(0).toUpperCase() + this.data.honapok[month].slice(1)} ${year}`;
+            
+            const firstDayOfMonth = new Date(year, month, 1);
+            const lastDayOfMonth = new Date(year, month + 1, 0);
+            const lastDayOfPrevMonth = new Date(year, month, 0);
+            
+            const daysInMonth = lastDayOfMonth.getDate();
+            const lastDayDateOfPrevMonth = lastDayOfPrevMonth.getDate();
+            
+            const startDayIndex = (firstDayOfMonth.getDay() + 6) % 7;
+
+            let daysHTML = '';
+
+            for (let i = startDayIndex; i > 0; i--) {
+                daysHTML += `<div class="day other-month">
+                                <div class="day-number">${lastDayDateOfPrevMonth - i + 1}</div>
+                             </div>`;
+            }
+            
+            const today = new Date();
+            for (let i = 1; i <= daysInMonth; i++) {
+                const isToday = i === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+                const currentDate = new Date(year, month, i);
+                const isSunday = currentDate.getDay() === 0;
+
+                const dayKey = `${(month + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
+                const names = this.data.nameDays[dayKey] || [];
+                
+                daysHTML += `<div class="day ${isToday ? 'today' : ''} ${isSunday ? 'sunday' : ''}">
+                                <div class="day-number">${i}</div>
+                                <div class="day-names">${names.join('<br>')}</div>
+                            </div>`;
+            }
+            
+            const totalDaysRendered = startDayIndex + daysInMonth;
+            const nextDays = (7 - totalDaysRendered % 7) % 7;
+            for (let i = 1; i <= nextDays; i++) {
+                daysHTML += `<div class="day other-month">
+                                <div class="day-number">${i}</div>
+                            </div>`;
+            }
+
+            this.DOM.daysGrid.innerHTML = daysHTML;
+        },
+        
+        renderTodaySummary() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth();
+            const day = today.getDate();
+
+            const dayKey = `${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+            const names = this.data.nameDays[dayKey] || [];
+            let nameDayText = "ma nincs névnap.";
+            if (names.length > 0) {
+                nameDayText = `${names.join(' és ')} névnapja.`;
+            }
+            this.DOM.todayFullSummary.textContent = `${year}. ${this.data.honapok[month]} ${day}. — ${nameDayText}`;
+
             const startOfYear = new Date(year, 0, 1);
             const endOfYear = new Date(year + 1, 0, 1);
             
-            const dayOfYear = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24)) + 1;
+            const dayOfYear = Math.floor((today - startOfYear) / (1000 * 60 * 60 * 24)) + 1;
             const weekOfYear = Math.ceil(dayOfYear / 7);
-            const daysRemaining = Math.floor((endOfYear - now) / (1000 * 60 * 60 * 24));
+            const daysRemaining = Math.floor((endOfYear - today) / (1000 * 60 * 60 * 24));
+
+            this.DOM.dateStatsLine1.innerHTML = `Az év <span>${weekOfYear}</span>. hete és <span>${dayOfYear}</span>. napja.`;
+            this.DOM.dateStatsLine2.innerHTML = `Ebből az évből még <span>${daysRemaining}</span> nap van hátra.`;
+        },
+
+        handleSearch() {
+            const searchTerm = this.DOM.searchInput.value.trim().toLowerCase();
+            this.DOM.searchResults.innerHTML = '';
+
+            if (searchTerm.length < 2) return;
             
-            DOM.statsLine1.innerHTML = `Az év <span>${weekOfYear}</span>. hete és <span>${dayOfYear}</span>. napja.`;
-            DOM.statsLine2.innerHTML = `Ebből az évből még <span>${daysRemaining}</span> nap van hátra.`;
-        };
-
-        const updateNameDays = (now) => {
-            const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
-            const tomorrow = new Date(now); tomorrow.setDate(now.getDate() + 1);
-
-            const yesterdayKey = formatDateKey(yesterday);
-            const todayKey = formatDateKey(now);
-            const tomorrowKey = formatDateKey(tomorrow);
-
-            DOM.yesterdayNames.textContent = (nameDays[yesterdayKey] || ["-"]).join(', ');
-            DOM.todayNames.textContent = (nameDays[todayKey] || ["-"]).join(', ');
-            DOM.tomorrowNames.textContent = (nameDays[tomorrowKey] || ["-"]).join(', ');
-        };
-        
-        const handleSearch = () => {
-            const searchTerm = DOM.searchInput.value.trim().toLowerCase();
-            DOM.searchResults.innerHTML = '';
-
-            if (searchTerm.length < 2) {
-                return;
-            }
-
-            const foundNames = [];
+            const normalizeString = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const normalizedSearchTerm = normalizeString(searchTerm);
+            const foundNames = [];
 
-            for (const [dateKey, names] of Object.entries(nameDays)) {
+            for (const [dateKey, names] of Object.entries(this.data.nameDays)) {
                 for (const name of names) {
                     if (normalizeString(name).includes(normalizedSearchTerm)) {
-                        foundNames.push({ name: name, date: formatHumanDate(dateKey) });
+                        const [month, day] = dateKey.split('-');
+                        foundNames.push({ name: name, date: `${this.data.honapok[parseInt(month,10)-1]} ${parseInt(day,10)}.` });
                     }
                 }
             }
-
+            
             if (foundNames.length > 0) {
+                const uniqueNames = [...new Map(foundNames.map(item => [item.name, item])).values()];
                 let resultHTML = '';
-                const displayedNames = new Set(); 
-
-                for (const item of foundNames) {
-                    if (displayedNames.has(item.name)) continue;
-
-                    resultHTML += `<div class="result-item">`;
-                    resultHTML += `<p class="date">${item.name}: ${item.date}</p>`;
-                    resultHTML += `</div>`;
-                    
-                    displayedNames.add(item.name);
-                }
-                DOM.searchResults.innerHTML = resultHTML;
-
+                uniqueNames.forEach(item => {
+                    resultHTML += `<div class="result-item">${item.name}: <strong>${item.date}</strong></div>`;
+                });
+                this.DOM.searchResults.innerHTML = resultHTML;
             } else {
-                DOM.searchResults.innerHTML = `<div class="result-item"><p>Nincs találat: "${DOM.searchInput.value}"</p></div>`;
+                 this.DOM.searchResults.innerHTML = `<div class="result-item">Nincs találat.</div>`;
             }
-        };
+        }
+    };
 
-        const refreshAllData = () => {
-            const now = new Date();
-            updateHeaderAndFooter(now);
-            updateDateStats(now);
-            updateNameDays(now);
-        };
-
-        const scheduleNextUpdate = () => {
-            const now = new Date();
-            const tomorrowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 1);
-            const msUntilMidnight = tomorrowMidnight - now;
-
-            setTimeout(() => {
-                refreshAllData();
-                setInterval(refreshAllData, 24 * 60 * 60 * 1000);
-            }, msUntilMidnight);
-        };
-
-        refreshAllData();
-        scheduleNextUpdate();
-        DOM.searchInput.addEventListener('input', handleSearch);
-    });
+    document.addEventListener('DOMContentLoaded', () => App.init());
     </script>
 </body>
 </html>
