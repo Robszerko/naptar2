@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Névnap Naptár</title>
+    <title>Névnap Kereső</title>
     
     <style>
         :root {
-            --bg-color: #263238; /* Mély kékes-szürke (Blue Grey 900) */
-            --container-bg: #37474f; /* Sötét pala (Blue Grey 800) */
-            --text-color: #cfd8dc; /* Világos kékes-szürke (Blue Grey 100) */
-            --text-light: #90a4ae; /* Halványabb szürke (Blue Grey 400) */
-            --text-header: #ffffff; /* Fehér */
-            --accent-color: #ff7043; /* Élénk korall (Deep Orange 400) */
-            --border-color: rgba(255, 255, 255, 0.1);
+            --bg-color: #1a1a2e; /* Mély indigó */
+            --container-bg: #1f2847; /* Sötétkék pala */
+            --text-color: #e0e0e0;
+            --text-header: #ffffff;
+            --text-light: #a0aec0;
+            --accent-color: #9f7aea; /* Vidám lila */
+            --border-color: rgba(159, 122, 234, 0.3);
             --shadow-color: rgba(0, 0, 0, 0.2);
         }
 
@@ -26,7 +26,7 @@
             margin: 0;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             min-height: 100vh;
             color: var(--text-color);
             background-color: var(--bg-color);
@@ -35,205 +35,117 @@
 
         .container {
             width: 100%;
-            max-width: 700px;
+            max-width: 500px;
+            text-align: center;
         }
 
         .card {
             background: var(--container-bg);
             border-radius: 24px;
-            padding: 25px;
+            padding: 30px 35px;
             box-shadow: 0 10px 30px var(--shadow-color);
-            margin-bottom: 20px;
-        }
-        
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             margin-bottom: 25px;
+            border: 1px solid var(--border-color);
         }
-
-        .calendar-header h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin: 0;
+        
+        /* Felső információs kártya */
+        .summary-card {
+            background: linear-gradient(145deg, var(--accent-color), #7b42f6);
             color: var(--text-header);
-        }
-
-        .nav-button {
-            background: none;
             border: none;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s;
-        }
-        .nav-button:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-        }
-        .nav-button svg {
-            width: 24px;
-            height: 24px;
-            stroke: var(--text-color);
-        }
-        
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
         }
 
-        .weekday {
-            font-weight: 600;
-            font-size: 0.8rem;
-            text-align: center;
-            color: var(--text-light);
-            margin-bottom: 10px;
-        }
-        .weekday.sunday {
-            color: var(--accent-color);
-        }
-
-        .day {
-            text-align: center;
-            padding: 8px 4px;
-            min-height: 85px;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .day .day-number {
-            font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 6px;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-        .day .day-names {
-            font-size: 0.8rem;
-            font-weight: 500;
-            line-height: 1.4;
-        }
-        
-        .day.other-month {
-            opacity: 0.4;
-        }
-        
-        .day.sunday .day-number {
-            color: var(--accent-color);
-        }
-        
-        .day.today .day-number {
-            background-color: var(--accent-color);
-            color: var(--text-header);
-            border-radius: 50%;
-        }
-        .day.today .day-names {
-            color: var(--text-header);
+        #today-summary {
+            font-size: 1.3rem;
             font-weight: 700;
-        }
-        
-        .today-summary {
-            text-align: center;
-        }
-        #today-full-summary {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-header);
             margin: 0 0 10px 0;
         }
-        .today-summary p {
+        #tomorrow-summary {
+             font-size: 1rem;
+            font-weight: 500;
+            margin: 0 0 20px 0;
+            opacity: 0.9;
+        }
+        .summary-card p {
             margin: 4px 0 0 0;
             font-size: 0.9rem;
-            color: var(--text-light);
+            color: var(--text-header);
+            opacity: 0.8;
         }
-        .today-summary p span {
-            font-weight: 600;
-            color: var(--text-color);
+        .summary-card p span {
+            font-weight: 700;
+            opacity: 1;
         }
 
+        /* KERESŐ */
         #name-search {
             width: 100%;
-            padding: 12px 20px;
+            padding: 14px 20px;
             border-radius: 12px;
             border: 1px solid var(--border-color);
             font-size: 1rem;
             background-color: var(--bg-color);
             color: var(--text-color);
-            transition: border-color 0.2s;
+            transition: all 0.2s;
+            text-align: center;
         }
         #name-search:focus {
             outline: none;
             border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(159, 122, 234, 0.3);
         }
         #search-results {
             margin-top: 15px;
+            text-align: left;
         }
         .result-item {
-            padding: 12px;
+            padding: 12px 15px;
             border-radius: 8px;
             margin-bottom: 8px;
             background-color: var(--bg-color);
+            font-weight: 500;
         }
-        
-        @media (max-width: 600px) {
-            .card { padding: 15px; }
-            .day { min-height: 70px; padding: 4px 2px; }
-            .day .day-names { font-size: 0.7rem; }
-            .calendar-header h1 { font-size: 1.4rem; }
-            #today-full-summary { font-size: 1rem; }
-            .today-summary p { font-size: 0.8rem; }
+        .result-item strong {
+            color: var(--accent-color);
         }
+
+        /* LÁBLÉC */
+        .footer {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            opacity: 0.6;
+        }
+
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- ÚJ ELRENDEZÉS: ÖSSZEGZŐ FELÜL -->
-        <div class="card today-summary">
-            <h2 id="today-full-summary"></h2>
+        <!-- Felső összegző kártya -->
+        <div class="card summary-card">
+            <h2 id="today-summary"></h2>
+            <p id="tomorrow-summary"></p>
             <p id="date-stats-line1"></p>
             <p id="date-stats-line2"></p>
         </div>
-
-        <div class="card calendar-container">
-            <div class="calendar-header">
-                <button id="prev-month" class="nav-button" aria-label="Előző hónap">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
-                </button>
-                <h1 id="month-year"></h1>
-                <button id="next-month" class="nav-button" aria-label="Következő hónap">
-                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
-                </button>
-            </div>
-            <div class="calendar-grid" id="weekdays-grid"></div>
-            <div class="calendar-grid" id="days-grid"></div>
-        </div>
         
+        <!-- Kereső kártya -->
         <div class="card search-container">
-             <input type="text" id="name-search" placeholder="Keress névnapra...">
+             <input type="text" id="name-search" placeholder="Keress egy névnapra...">
              <div id="search-results"></div>
         </div>
+
+        <!-- Lábléc -->
+        <footer class="footer">
+            <p>© Copyright by: Robi</p>
+        </footer>
     </div>
 
 
     <script>
     const App = {
-        state: {
-            displayDate: new Date(),
-        },
         data: {
             honapok: ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"],
-            napok: ["H", "K", "Sze", "Cs", "P", "Szo", "V"],
             nameDays: {
                  "01-01": ["Fruzsina"], "01-02": ["Ábel"], "01-03": ["Benjámin", "Genovéva"], "01-04": ["Leóna", "Titusz"], "01-05": ["Simon"],
                 "01-06": ["Boldizsár"], "01-07": ["Attila", "Ramóna"], "01-08": ["Gyöngyvér"], "01-09": ["Marcell"], "01-10": ["Melánia"],
@@ -314,114 +226,54 @@
         init() {
             this.cacheDOM();
             this.setupEventListeners();
-            this.render();
-            this.renderTodaySummary();
+            this.renderSummary();
         },
 
         cacheDOM() {
-            this.DOM.monthYear = document.getElementById('month-year');
-            this.DOM.weekdaysGrid = document.getElementById('weekdays-grid');
-            this.DOM.daysGrid = document.getElementById('days-grid');
-            this.DOM.prevMonthBtn = document.getElementById('prev-month');
-            this.DOM.nextMonthBtn = document.getElementById('next-month');
             this.DOM.searchInput = document.getElementById('name-search');
             this.DOM.searchResults = document.getElementById('search-results');
-            this.DOM.todayFullSummary = document.getElementById('today-full-summary');
+            this.DOM.todaySummary = document.getElementById('today-summary');
+            this.DOM.tomorrowSummary = document.getElementById('tomorrow-summary');
             this.DOM.dateStatsLine1 = document.getElementById('date-stats-line1');
             this.DOM.dateStatsLine2 = document.getElementById('date-stats-line2');
         },
 
         setupEventListeners() {
-            this.DOM.prevMonthBtn.addEventListener('click', () => this.changeMonth(-1));
-            this.DOM.nextMonthBtn.addEventListener('click', () => this.changeMonth(1));
             this.DOM.searchInput.addEventListener('input', () => this.handleSearch());
         },
 
-        changeMonth(direction) {
-            this.state.displayDate.setMonth(this.state.displayDate.getMonth() + direction);
-            this.render();
-        },
-        
-        render() {
-            this.renderWeekdays();
-            this.renderDays();
-        },
-
-        renderWeekdays() {
-            let weekdaysHTML = '';
-            this.data.napok.forEach((day, index) => {
-                const isSunday = index === 6;
-                weekdaysHTML += `<div class="weekday ${isSunday ? 'sunday' : ''}">${day}</div>`;
-            });
-            this.DOM.weekdaysGrid.innerHTML = weekdaysHTML;
-        },
-
-        renderDays() {
-            const date = this.state.displayDate;
-            const year = date.getFullYear();
-            const month = date.getMonth();
-            
-            this.DOM.monthYear.textContent = `${this.data.honapok[month].charAt(0).toUpperCase() + this.data.honapok[month].slice(1)} ${year}`;
-            
-            const firstDayOfMonth = new Date(year, month, 1);
-            const lastDayOfMonth = new Date(year, month + 1, 0);
-            const lastDayOfPrevMonth = new Date(year, month, 0);
-            
-            const daysInMonth = lastDayOfMonth.getDate();
-            const lastDayDateOfPrevMonth = lastDayOfPrevMonth.getDate();
-            
-            const startDayIndex = (firstDayOfMonth.getDay() + 6) % 7;
-
-            let daysHTML = '';
-
-            for (let i = startDayIndex; i > 0; i--) {
-                daysHTML += `<div class="day other-month">
-                                <div class="day-number">${lastDayDateOfPrevMonth - i + 1}</div>
-                             </div>`;
-            }
-            
+        renderSummary() {
             const today = new Date();
-            for (let i = 1; i <= daysInMonth; i++) {
-                const isToday = i === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-                const currentDate = new Date(year, month, i);
-                const isSunday = currentDate.getDay() === 0;
+            const tomorrow = new Date();
+            tomorrow.setDate(today.getDate() + 1);
 
-                const dayKey = `${(month + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
-                const names = this.data.nameDays[dayKey] || [];
-                
-                daysHTML += `<div class="day ${isToday ? 'today' : ''} ${isSunday ? 'sunday' : ''}">
-                                <div class="day-number">${i}</div>
-                                <div class="day-names">${names.join('<br>')}</div>
-                            </div>`;
+            // MAI NAP
+            const todayYear = today.getFullYear();
+            const todayMonth = today.getMonth();
+            const todayDay = today.getDate();
+            const todayKey = `${(todayMonth + 1).toString().padStart(2, '0')}-${todayDay.toString().padStart(2, '0')}`;
+            const todayNames = this.data.nameDays[todayKey] || [];
+            let todayNameDayText = "ma nincs névnap.";
+            if (todayNames.length > 0) {
+                todayNameDayText = `ma ${todayNames.join(' és ')} névnapja van.`;
             }
+            this.DOM.todaySummary.textContent = `${todayYear}. ${this.data.honapok[todayMonth]} ${todayDay}. — ${todayNameDayText}`;
             
-            const totalDaysRendered = startDayIndex + daysInMonth;
-            const nextDays = (7 - totalDaysRendered % 7) % 7;
-            for (let i = 1; i <= nextDays; i++) {
-                daysHTML += `<div class="day other-month">
-                                <div class="day-number">${i}</div>
-                            </div>`;
+            // HOLNAPI NAP
+            const tomorrowMonth = tomorrow.getMonth();
+            const tomorrowDay = tomorrow.getDate();
+            const tomorrowKey = `${(tomorrowMonth + 1).toString().padStart(2, '0')}-${tomorrowDay.toString().padStart(2, '0')}`;
+            const tomorrowNames = this.data.nameDays[tomorrowKey] || [];
+            let tomorrowNameDayText = "Holnap nem lesz névnap.";
+             if (tomorrowNames.length > 0) {
+                tomorrowNameDayText = `Holnap ${tomorrowNames.join(' és ')} névnapja lesz.`;
             }
+            this.DOM.tomorrowSummary.textContent = tomorrowNameDayText;
 
-            this.DOM.daysGrid.innerHTML = daysHTML;
-        },
-        
-        renderTodaySummary() {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = today.getMonth();
-            const day = today.getDate();
 
-            const dayKey = `${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-            const names = this.data.nameDays[dayKey] || [];
-            let nameDayText = "ma nincs névnap.";
-            if (names.length > 0) {
-                nameDayText = `${names.join(' és ')} névnapja.`;
-            }
-            this.DOM.todayFullSummary.textContent = `${year}. ${this.data.honapok[month]} ${day}. — ${nameDayText}`;
-
-            const startOfYear = new Date(year, 0, 1);
-            const endOfYear = new Date(year + 1, 0, 1);
+            // STATISZTIKÁK
+            const startOfYear = new Date(todayYear, 0, 1);
+            const endOfYear = new Date(todayYear + 1, 0, 1);
             
             const dayOfYear = Math.floor((today - startOfYear) / (1000 * 60 * 60 * 24)) + 1;
             const weekOfYear = Math.ceil(dayOfYear / 7);
