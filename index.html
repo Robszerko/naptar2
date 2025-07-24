@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Névnap Kereső</title>
-    
-    <!-- ÚJ: Google Fonts - Nunito Sans betűtípus -->
+    <title>Névnap Kereső és Rádió</title>
+
+    <!-- Google Fonts - Nunito Sans betűtípus -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
         :root {
-            --bg-color: #1a1a2e; 
+            --bg-color: #1a1a2e;
             --text-color: #e0e0e0;
             --text-header: #ffffff;
             --text-light: #a0aec0;
-            --accent-color: #a78bfa; 
+            --accent-color: #a78bfa;
             --border-color: rgba(167, 139, 250, 0.2);
             --shadow-color: rgba(0, 0, 0, 0.3);
             --focus-glow-color: rgba(167, 139, 250, 0.3);
@@ -27,7 +27,6 @@
         }
 
         body {
-            /* ÚJ: Nunito Sans betűtípus beállítása */
             font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             display: flex;
@@ -55,27 +54,27 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         #current-date {
             font-size: 1.5rem;
             font-weight: 700;
             margin: 0 0 12px 0;
             color: var(--text-header);
         }
-        #today-nameday {
+        #today-nameday, #tomorrow-nameday {
             font-size: 1.1rem;
-            font-weight: 600; /* Kicsit erősebb a jobb olvashatóságért */
             margin: 0 0 8px 0;
             color: var(--text-header);
         }
+        #today-nameday {
+             font-weight: 600;
+        }
         #tomorrow-nameday {
-            font-size: 1rem;
             font-weight: 400;
-            margin: 0 0 20px 0;
-            opacity: 0.9;
+            margin-bottom: 20px;
             padding-bottom: 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            color: var(--text-header);
+            opacity: 0.9;
         }
         .stats-line {
             margin: 4px 0 0 0;
@@ -93,7 +92,7 @@
             width: 100%;
             padding: 14px 20px;
             border-radius: 12px;
-            border: 1px solid transparent; 
+            border: 1px solid transparent;
             background-color: rgba(26, 26, 46, 0.8);
             color: var(--text-color);
             transition: all 0.2s;
@@ -122,12 +121,83 @@
             font-weight: 600;
         }
 
+        /* Rádió stílusok */
+        .radio-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 25px 30px;
+        }
+        .radio-logo {
+            max-width: 90px;
+            height: auto;
+            flex-shrink: 0;
+        }
+        .radio-controls {
+            flex-grow: 1;
+            text-align: center;
+        }
+        .radio-controls p {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-header);
+            margin: 0 0 15px 0;
+        }
+        #play-radio-btn {
+            background-color: var(--accent-color);
+            color: var(--text-header);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 25px;
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            margin-bottom: 15px;
+        }
+        #play-radio-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--focus-glow-color);
+        }
+        
+        /* Hangerőszabályzó csúszka stílusai */
+        #volume-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            max-width: 220px;
+            height: 8px;
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 5px;
+            outline: none;
+            transition: opacity 0.2s;
+            cursor: pointer;
+        }
+        #volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        #volume-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+
         .footer {
             font-size: 0.85rem;
             color: var(--text-light);
             opacity: 0.6;
         }
-
     </style>
 </head>
 <body>
@@ -140,7 +210,19 @@
             <p id="date-stats-line1" class="stats-line"></p>
             <p id="date-stats-line2" class="stats-line"></p>
         </div>
-        
+
+        <!-- MÓDOSÍTOTT: Rádiólejátszó kártya az új logóval -->
+        <div class="card radio-container">
+            <img src="https://i.ibb.co/4ZhwgNxC/1781466.png" alt="Cherry1 Logo" class="radio-logo">
+            <div class="radio-controls">
+                <p>Bekapcsolom a Cherry1-et</p>
+                <button id="play-radio-btn">Lejátszás</button>
+                <input type="range" id="volume-slider" title="Hangerő" min="0" max="1" step="0.01">
+            </div>
+            <audio id="radio-player" src="https://srv02.gpmradio.ru:8443/stream/personal/aacp/64/1781466?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJrZXkiOiI2NDVhMTU2MzA4YTg0NGIyZDZhMGNkNDczMjJmNzkwMiIsIklQIjoiODAuOTkuNy4yMzIiLCJVQSI6Ik1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS8xMzguMC4wLjAgU2FmYXJpLzUzNy4zNiIsIlJlZiI6Imh0dHBzOi8vMTAxLnJ1LyIsInVpZF9jaGFubmVsIjoiMTc4MTQ2NiIsInR5cGVfY2hhbm5lbCI6InBlcnNvbmFsIiwidHlwZURldmljZSI6IlBDIiwiQnJvd3NlciI6IkNocm9tZSIsIkJyb3dzZXJWZXJzaW9uIjoiMTM4LjAuMC4wIiwiU3lzdGVtIjoiV2luZG93cyAxMCIsImV4cCI6MTc1MzQwNTU3OX0.nIsx9picvvZQGOh33oif6XnNwQ04aZ3zh8iKzZgtd7Y" preload="none"></audio>
+        </div>
+
+
         <div class="card search-container">
              <input type="text" id="name-search" placeholder="Keress egy névnapra...">
              <div id="search-results"></div>
@@ -236,6 +318,7 @@
 
         init() {
             this.cacheDOM();
+            this.setInitialRadioState();
             this.setupEventListeners();
             this.renderSummary();
         },
@@ -248,10 +331,43 @@
             this.DOM.tomorrowNameday = document.getElementById('tomorrow-nameday');
             this.DOM.dateStatsLine1 = document.getElementById('date-stats-line1');
             this.DOM.dateStatsLine2 = document.getElementById('date-stats-line2');
+            
+            // Rádió elemek cache-elése
+            this.DOM.playRadioButton = document.getElementById('play-radio-btn');
+            this.DOM.radioPlayer = document.getElementById('radio-player');
+            this.DOM.volumeSlider = document.getElementById('volume-slider');
         },
 
         setupEventListeners() {
             this.DOM.searchInput.addEventListener('input', () => this.handleSearch());
+            this.DOM.playRadioButton.addEventListener('click', () => this.toggleRadio());
+            // Eseményfigyelő a hangerőszabályzóhoz
+            this.DOM.volumeSlider.addEventListener('input', () => this.setVolume());
+        },
+        
+        // Alapértelmezett rádió állapot beállítása
+        setInitialRadioState() {
+            const initialVolume = 0.8;
+            this.DOM.radioPlayer.volume = initialVolume;
+            this.DOM.volumeSlider.value = initialVolume;
+        },
+        
+        // Hangerő beállítása
+        setVolume() {
+            this.DOM.radioPlayer.volume = this.DOM.volumeSlider.value;
+        },
+        
+        toggleRadio() {
+            if (this.DOM.radioPlayer.paused) {
+                this.DOM.radioPlayer.play().catch(error => {
+                    console.error("Lejátszási hiba:", error);
+                    alert("A rádió lejátszása nem indítható el. Lehet, hogy a böngésző letiltotta az automatikus lejátszást.");
+                });
+                this.DOM.playRadioButton.textContent = 'Megállítás';
+            } else {
+                this.DOM.radioPlayer.pause();
+                this.DOM.playRadioButton.textContent = 'Lejátszás';
+            }
         },
 
         renderSummary() {
@@ -265,7 +381,7 @@
             const todayDayName = this.data.napok[today.getDay()];
 
             this.DOM.currentDate.textContent = `${todayYear}. ${this.data.honapok[todayMonth]} ${todayDay}. ${todayDayName}`;
-            
+
             const todayKey = `${(todayMonth + 1).toString().padStart(2, '0')}-${todayDay.toString().padStart(2, '0')}`;
             const todayNames = this.data.nameDays[todayKey] || [];
             let todayNameDayText = "Ma nincs névnap.";
@@ -273,7 +389,7 @@
                 todayNameDayText = `Ma ${todayNames.join(' és ')} névnapja van.`;
             }
             this.DOM.todayNameday.textContent = todayNameDayText;
-            
+
             const tomorrowMonth = tomorrow.getMonth();
             const tomorrowDay = tomorrow.getDate();
             const tomorrowKey = `${(tomorrowMonth + 1).toString().padStart(2, '0')}-${tomorrowDay.toString().padStart(2, '0')}`;
@@ -286,7 +402,7 @@
 
             const startOfYear = new Date(todayYear, 0, 1);
             const endOfYear = new Date(todayYear + 1, 0, 1);
-            
+
             const dayOfYear = Math.floor((today - startOfYear) / (1000 * 60 * 60 * 24)) + 1;
             const weekOfYear = Math.ceil(dayOfYear / 7);
             const daysRemaining = Math.floor((endOfYear - today) / (1000 * 60 * 60 * 24));
@@ -300,7 +416,7 @@
             this.DOM.searchResults.innerHTML = '';
 
             if (searchTerm.length < 2) return;
-            
+
             const normalizeString = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const normalizedSearchTerm = normalizeString(searchTerm);
             const foundNames = [];
@@ -313,7 +429,7 @@
                     }
                 }
             }
-            
+
             if (foundNames.length > 0) {
                 const uniqueNames = [...new Map(foundNames.map(item => [item.name, item])).values()];
                 let resultHTML = '';
